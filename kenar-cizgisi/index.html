@@ -1,0 +1,463 @@
+<title>Kenar Çizgisi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Düzen: kulübe — solda taktik tahtası, ortada saha, sağda skorbord + analist. Dar ekranda üst üste. */
+:root {
+  --bg: #eef1ec;          /* kulübe duvarı */
+  --panel: #fbfcfa;
+  --ink: #17201b;
+  --muted: #5d6a62;
+  --line: #d3dbd4;
+  --accent: #c8541b;      /* kaptan bandı turuncusu */
+  --board: #1d2a23;       /* skorbord */
+  --board-ink: #ffcf5a;   /* skorbord ampulü */
+  --good: #2f8a4c; --bad: #c2392f; --info: #3a6fb0;
+  --home: #e0483e; --away: #3d7bd9;
+  --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111814; --panel: #18211c; --ink: #e6ece7; --muted: #95a39a; --line: #2b3830;
+  --accent: #ef7a3f; --board: #0a0f0c; --board-ink: #ffcf5a; --good: #5cc07a; --bad: #ef6b60; --info: #7aa7e6; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111814; --panel: #18211c; --ink: #e6ece7; --muted: #95a39a; --line: #2b3830;
+  --accent: #ef7a3f; --board: #0a0f0c; --board-ink: #ffcf5a; --good: #5cc07a; --bad: #ef6b60; --info: #7aa7e6; color-scheme: dark }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 14px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px 32px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 800; letter-spacing: .02em; text-wrap: balance; margin: 0; text-transform: uppercase; }
+.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; max-width: 1400px; margin: 0 auto 14px; }
+.top h1 { font-size: 34px; line-height: 1; }
+.top h1 span { color: var(--accent); }
+.top p { margin: 0; color: var(--muted); max-width: 70ch; }
+.app { display: grid; grid-template-columns: 300px minmax(0, 1fr) 320px; gap: 16px; max-width: 1400px; margin: 0 auto; align-items: start; }
+@media (max-width: 1150px) { .app { grid-template-columns: 300px minmax(0, 1fr); } .right { grid-column: 1 / -1; } }
+@media (max-width: 760px) { .app { grid-template-columns: minmax(0, 1fr); } .center { order: -1; } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.label { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h2 { font-size: 20px; }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; }
+button, select { font: inherit; color: inherit; }
+.chip { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 4px 10px; cursor: pointer; font-size: 13px; }
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+select { width: 100%; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); }
+.slider { display: grid; gap: 2px; }
+.slider .head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.slider .head b { font-weight: 600; }
+.slider .head output { font-family: var(--mono); font-size: 12px; color: var(--accent); font-variant-numeric: tabular-nums; }
+.slider input { width: 100%; accent-color: var(--accent); }
+.slider .ends { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+.slider .hint { font-size: 12px; color: var(--muted); min-height: 2.9em; }
+.profile { display: grid; gap: 4px; font-size: 13px; }
+.profile div { display: flex; gap: 6px; }
+.profile .tag { font-family: var(--mono); font-size: 10px; padding: 1px 5px; border-radius: 4px; height: fit-content; margin-top: 2px; white-space: nowrap; color: #fff; }
+.tag.good { background: var(--good); } .tag.bad { background: var(--bad); } .tag.info { background: var(--info); }
+
+.center { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.scoreboard { background: var(--board); color: var(--board-ink); border-radius: 10px; padding: 10px 14px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
+.scoreboard .team { font-family: var(--display); font-size: 20px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; display: flex; align-items: center; gap: 8px; min-width: 0; }
+.scoreboard .team span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.scoreboard .team.away { justify-content: flex-end; }
+.scoreboard .dot { width: 12px; height: 12px; border-radius: 50%; flex: none; border: 2px solid #000; }
+.scoreboard .score { font-family: var(--display); font-weight: 800; font-size: 44px; line-height: 1; text-align: center; font-variant-numeric: tabular-nums; text-shadow: 0 0 12px rgba(255, 207, 90, .35); }
+.scoreboard .min { font-family: var(--mono); font-size: 12px; text-align: center; opacity: .8; }
+.pitchwrap { position: relative; border-radius: 10px; overflow: hidden; background: #2f6b34; }
+canvas { display: block; width: 100%; height: auto; }
+.overlay { position: absolute; inset: 0; background: rgba(10, 15, 12, .78); color: #f2f5f2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 16px; text-align: center; }
+.overlay h3 { font-size: 30px; color: #ffcf5a; }
+.overlay p { margin: 0; max-width: 52ch; }
+.overlay ul { text-align: left; margin: 0; padding-left: 18px; max-width: 60ch; font-size: 13px; max-height: 40%; overflow: auto; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn { border: 1px solid var(--ink); background: var(--ink); color: var(--panel); border-radius: 6px; padding: 7px 14px; cursor: pointer; font-weight: 600; }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn:focus-visible, .chip:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.speed { display: flex; gap: 4px; }
+.controls .spacer { flex: 1; }
+.controls label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+.opp { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px; }
+.opp select { width: auto; }
+
+.right { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+td { padding: 4px 2px; border-bottom: 1px solid var(--line); font-size: 13px; }
+td:first-child, td:last-child { font-family: var(--mono); width: 26%; }
+td:last-child { text-align: right; }
+td:nth-child(2) { text-align: center; color: var(--muted); font-size: 12px; }
+.notes { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.notes li { display: flex; gap: 8px; font-size: 13px; }
+.feed { max-height: 180px; overflow: auto; font-family: var(--mono); font-size: 12px; display: grid; gap: 2px; }
+.feed .goal { color: var(--accent); font-weight: 600; }
+.lab { display: grid; gap: 8px; }
+.labres { font-family: var(--mono); font-size: 12px; }
+.bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--line); }
+.bar i { display: block; height: 100%; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="top">
+  <h1>Kenar <span>Çizgisi</span></h1>
+  <p>Topa sen dokunmuyorsun. Taktiği kur, maçı izle, kenardan müdahale et. Her talimatın bir bedeli var ve her plan bir başkasına yenilir.</p>
+</header>
+
+<main class="app">
+  <section class="panel left" aria-labelledby="tac-h">
+    <h2 id="tac-h">Taktik tahtası</h2>
+    <div class="label">Hazır planlar</div>
+    <div class="presets" id="presets"></div>
+    <div>
+      <div class="label" style="margin-bottom:4px">Diziliş (kaleci + 6)</div>
+      <select id="formation"></select>
+    </div>
+    <div id="sliders" style="display:grid;gap:10px"></div>
+    <div>
+      <div class="label" style="margin-bottom:6px">Bu planın profili</div>
+      <div class="profile" id="profile"></div>
+    </div>
+  </section>
+
+  <section class="center">
+    <div class="scoreboard" aria-live="polite">
+      <div class="team"><i class="dot" style="background:var(--home)"></i><span id="hname">Senin takımın</span></div>
+      <div><div class="score" id="score">0 - 0</div><div class="min" id="minute">0'</div></div>
+      <div class="team away"><span id="aname">Rakip</span><i class="dot" style="background:var(--away)"></i></div>
+    </div>
+    <div class="pitchwrap">
+      <canvas id="pitch" width="1040" height="680" aria-label="Maç sahası"></canvas>
+      <div class="overlay" id="overlay">
+        <h3 id="ovTitle">Maç önü</h3>
+        <p id="ovText">Soldan planını kur, rakibi seç ve başlat. Maç sırasında taktiği istediğin an değiştirebilirsin.</p>
+        <ul id="ovNotes"></ul>
+        <button class="btn" id="ovBtn" style="background:#ffcf5a;color:#17201b;border-color:#ffcf5a">Maçı başlat</button>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn" id="play">Duraklat</button>
+      <div class="speed" id="speed"></div>
+      <button class="btn ghost" id="restart">Yeni maç</button>
+      <span class="spacer"></span>
+      <label><input type="checkbox" id="lines" checked> Savunma hatlarını göster</label>
+    </div>
+    <div class="opp">
+      <span class="label">Rakip planı</span>
+      <select id="oppSel"></select>
+      <span id="oppInfo" style="color:var(--muted)"></span>
+    </div>
+  </section>
+
+  <aside class="right">
+    <section class="panel">
+      <h2>İstatistik</h2>
+      <table id="stats"></table>
+    </section>
+    <section class="panel">
+      <h2>Analist</h2>
+      <ul class="notes" id="notes"></ul>
+    </section>
+    <section class="panel">
+      <h2>Laboratuvar</h2>
+      <p style="margin:0;color:var(--muted);font-size:13px">Planını bu rakibe karşı 30 maçta görüntüsüz dene. Tek maçta şans olur, 30 maçta taktik konuşur.</p>
+      <div class="lab">
+        <button class="btn ghost" id="labBtn">30 maç simüle et</button>
+        <div class="labres" id="labRes"></div>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Maç akışı</h2>
+      <div class="feed" id="feed"></div>
+    </section>
+  </aside>
+</main>
+
+<script src="engine.js"></script>
+<script>
+(function () {
+  const E = window.Taktik;
+  const { L, W, GOAL_W, DT } = E;
+  const SL = [
+    { k: 'mentality', n: 'Mentalite', lo: 'Savunma', hi: 'Hücum',
+      h: v => v > 0.6 ? 'Hücumda daha çok adam, ama top kaybında arkada az kişi kalır.' : v < 0.4 ? 'Arkada sağlam durursun; hücumda forvet yalnız kalabilir.' : 'Hücum ve savunma arasında denge.' },
+    { k: 'line', n: 'Savunma hattı', lo: 'Derin', hi: 'Yüksek',
+      h: v => v > 0.6 ? 'Rakibi sıkıştırır, ofsayt tuzağı kurar. Arkası boş: ara paslara ve uzun toplara açık.' : v < 0.4 ? 'Arkada boşluk yok, ama rakibe kalenin önünde alan ve zaman verirsin.' : 'Orta blok.' },
+    { k: 'press', n: 'Pres', lo: 'Bekle', hi: 'Önde bas',
+      h: v => v > 0.6 ? 'Topu rakip yarı sahada kazanırsın. Çok koşturur, yorar; preslenen adam geçilince boşluk açılır.' : v < 0.4 ? 'Enerji saklarsın, ama rakip rahat oyun kurar.' : 'Orta sahada pres.' },
+    { k: 'width', n: 'Genişlik', lo: 'Dar', hi: 'Geniş',
+      h: v => v > 0.6 ? 'Kapalı savunmayı açar, orta şansı yaratır. Paslar uzar ve araya girmeye açık olur.' : v < 0.4 ? 'Kısa pas mesafeleri, ama merkez kalabalıklaşır.' : 'Normal genişlik.' },
+    { k: 'direct', n: 'Pas tarzı', lo: 'Kısa', hi: 'Direkt',
+      h: v => v > 0.6 ? 'Havadan ve ileri pas presin üstünden geçer, ama isabet düşer ve topu sık kaybedersin.' : v < 0.4 ? 'Topu elde tutarsın; sert prese karşı kendi yarında sıkışabilirsin.' : 'Karışık pas.' },
+    { k: 'tempo', n: 'Tempo', lo: 'Sabırlı', hi: 'Hızlı',
+      h: v => v > 0.6 ? 'Hızlı karar, savunma yerleşmeden vurur. Aceleci kararlar hata getirir.' : v < 0.4 ? 'Doğru anı bekler; ama beklerken presin kucağına düşebilir.' : 'Normal tempo.' },
+  ];
+  const SPEEDS = [1, 2, 4, 8];
+  const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+
+  let my = Object.assign({}, E.PRESETS['Dengeli'], store.get('kc-tactic') || {});
+  let oppChoice = store.get('kc-opp') || 'Rastgele';
+  let oppName = '', match = null, running = false, speed = 2, started = false, lastNotes = 0;
+
+  // ---------- Taktik paneli ----------
+  const $ = id => document.getElementById(id);
+  const presetBox = $('presets');
+  Object.keys(E.PRESETS).forEach(n => {
+    const b = document.createElement('button');
+    b.className = 'chip'; b.textContent = n; b.type = 'button';
+    b.onclick = () => { my = Object.assign({}, E.PRESETS[n]); syncUI(); applyTactic(); };
+    presetBox.appendChild(b);
+  });
+  const fsel = $('formation');
+  Object.keys(E.FORMATIONS).forEach(f => fsel.add(new Option(f, f)));
+  fsel.onchange = () => { my.formation = fsel.value; applyTactic(); };
+  const sbox = $('sliders');
+  SL.forEach(s => {
+    const d = document.createElement('div'); d.className = 'slider';
+    d.innerHTML = `<div class="head"><b><label for="s-${s.k}">${s.n}</label></b><output id="o-${s.k}"></output></div>
+      <input type="range" id="s-${s.k}" min="0" max="100" step="5">
+      <div class="ends"><span>${s.lo}</span><span>${s.hi}</span></div><div class="hint" id="h-${s.k}"></div>`;
+    sbox.appendChild(d);
+    d.querySelector('input').oninput = e => { my[s.k] = +e.target.value / 100; syncUI(true); applyTactic(); };
+  });
+
+  function profile(t) {
+    const out = [];
+    if (t.press > 0.7 && t.line > 0.6) out.push(['good', 'Rakibi kendi yarı sahasında boğar']);
+    if (t.press > 0.7) out.push(['bad', 'İkinci yarıda kondisyon düşer']);
+    if (t.line > 0.65) out.push(['bad', 'Arkaya atılan toplara ve hızlı kontraya açık']);
+    if (t.line < 0.3) out.push(['good', 'Arkada boşluk vermez, ara pas zor']);
+    if (t.line < 0.3 && t.press < 0.35) out.push(['bad', 'Topu rakibe bırakır; sabırlı ve geniş oyuna karşı zorlanır']);
+    if (t.direct > 0.65) out.push(['good', 'Presi havadan aşar']), out.push(['bad', 'Topu çabuk kaybeder, uzun sürede topa sahip olamaz']);
+    if (t.direct < 0.3) out.push(['good', 'Topu elde tutar, rakibi koşturur']);
+    if (t.direct < 0.3 && t.tempo < 0.4) out.push(['bad', 'Yoğun prese karşı kendi yarında top kaybı riski']);
+    if (t.width > 0.75) out.push(['good', 'Kanatlardan orta ve genişlik']);
+    if (t.press > 0.65 && t.line < 0.35) out.push(['bad', 'Tutarsız: forvetler önde basarken savunma geride bekliyor, arada dev boşluk kalır']);
+    if (t.mentality > 0.7 && t.line < 0.3) out.push(['bad', 'Tutarsız: hücuma çok adam çıkarken hat derin, takım ikiye bölünür']);
+    if (t.mentality > 0.7) out.push(['bad', 'Kontra atağa karşı arkada az adam']);
+    if (!out.length) out.push(['info', 'Belirgin bir aşırılık yok; her şeye karşı orta düzey.']);
+    return out;
+  }
+
+  function syncUI(fromSlider) {
+    SL.forEach(s => {
+      const v = my[s.k];
+      if (!fromSlider) $('s-' + s.k).value = Math.round(v * 100);
+      $('o-' + s.k).textContent = Math.round(v * 100);
+      $('h-' + s.k).textContent = s.h(v);
+    });
+    fsel.value = my.formation;
+    [...presetBox.children].forEach(b => {
+      const p = E.PRESETS[b.textContent];
+      b.setAttribute('aria-pressed', String(p.formation === my.formation && E.TACTIC_KEYS.every(k => Math.abs(p[k] - my[k]) < 0.001)));
+    });
+    $('profile').innerHTML = profile(my).map(([k, t]) => `<div><span class="tag ${k}">${k === 'good' ? 'ARTI' : k === 'bad' ? 'EKSİ' : 'NOT'}</span><span>${t}</span></div>`).join('');
+  }
+  function applyTactic() {
+    store.set('kc-tactic', my);
+    if (match) match.setTactic(0, Object.assign({}, my));
+  }
+
+  // ---------- Rakip ----------
+  const osel = $('oppSel');
+  ['Rastgele'].concat(Object.keys(E.PRESETS)).forEach(n => osel.add(new Option(n, n)));
+  osel.value = oppChoice;
+  osel.onchange = () => { oppChoice = osel.value; store.set('kc-opp', oppChoice); newMatch(); };
+  function pickOpp() {
+    if (oppChoice !== 'Rastgele') return oppChoice;
+    const ns = Object.keys(E.PRESETS);
+    return ns[(Math.random() * ns.length) | 0];
+  }
+
+  // ---------- Maç ----------
+  function newMatch() {
+    oppName = pickOpp();
+    match = new E.Match({ home: { name: 'Senin takımın', tactic: Object.assign({}, my), color: '#e0483e' },
+      away: { name: oppName, tactic: Object.assign({}, E.PRESETS[oppName]), color: '#3d7bd9' } });
+    $('aname').textContent = oppName;
+    $('oppInfo').textContent = 'Gözlemci raporu: ' + describe(E.PRESETS[oppName]);
+    running = false; started = false;
+    showOverlay('Maç önü', `Rakip: ${oppName}. Planını kur ve başlat. Maç sırasında taktiği istediğin an değiştirebilirsin.`, [], 'Maçı başlat');
+    $('feed').innerHTML = ''; lastFeed = 0;
+    updateBoard(true);
+  }
+  function describe(t) {
+    const a = [];
+    a.push(t.press > 0.65 ? 'önde pres' : t.press < 0.35 ? 'geride bekliyor' : 'orta pres');
+    a.push(t.line > 0.65 ? 'yüksek hat' : t.line < 0.35 ? 'derin blok' : 'orta hat');
+    a.push(t.direct > 0.65 ? 'uzun top' : t.direct < 0.35 ? 'kısa pas' : 'karışık pas');
+    if (t.width > 0.75) a.push('çok geniş');
+    return a.join(', ') + ' · ' + t.formation;
+  }
+  function showOverlay(title, text, notes, btn) {
+    $('ovTitle').textContent = title; $('ovText').textContent = text;
+    $('ovNotes').innerHTML = notes.map(n => `<li>${n.t}</li>`).join('');
+    $('ovBtn').textContent = btn; $('overlay').hidden = false;
+  }
+  $('ovBtn').onclick = () => {
+    if (!match || match.state === 'ended') { newMatch(); return; }
+    if (match.state === 'halftime') match.resume();
+    $('overlay').hidden = true; running = true; started = true; $('play').textContent = 'Duraklat';
+  };
+  $('play').onclick = () => {
+    if (!started || match.state !== 'play') { $('ovBtn').click(); return; }
+    running = !running; $('play').textContent = running ? 'Duraklat' : 'Devam';
+  };
+  $('restart').onclick = newMatch;
+  const spBox = $('speed');
+  SPEEDS.forEach(s => {
+    const b = document.createElement('button'); b.className = 'chip'; b.type = 'button'; b.textContent = s + '×';
+    b.onclick = () => { speed = s; [...spBox.children].forEach(c => c.setAttribute('aria-pressed', String(c === b))); };
+    b.setAttribute('aria-pressed', String(s === speed));
+    spBox.appendChild(b);
+  });
+
+  // ---------- Çizim ----------
+  const cv = $('pitch'), ctx = cv.getContext('2d');
+  const M = 3, S = cv.width / (L + 2 * M);
+  const X = x => (x + M) * S, Y = y => (y + M) * S;
+  function drawPitch() {
+    for (let i = 0; i < 10; i++) { ctx.fillStyle = i % 2 ? '#3a7d3f' : '#357439'; ctx.fillRect(X(i * L / 10), 0, (L / 10) * S + 1, cv.height); }
+    ctx.fillStyle = '#2f6b34'; ctx.fillRect(0, 0, cv.width, M * S); ctx.fillRect(0, Y(W), cv.width, M * S);
+    ctx.fillRect(0, 0, M * S, cv.height); ctx.fillRect(X(L), 0, M * S, cv.height);
+    ctx.strokeStyle = 'rgba(255,255,255,.8)'; ctx.lineWidth = 2;
+    ctx.strokeRect(X(0), Y(0), L * S, W * S);
+    ctx.beginPath(); ctx.moveTo(X(L / 2), Y(0)); ctx.lineTo(X(L / 2), Y(W)); ctx.stroke();
+    ctx.beginPath(); ctx.arc(X(L / 2), Y(W / 2), 6 * S, 0, Math.PI * 2); ctx.stroke();
+    const bd = E.BOX_D, bh = E.BOX_HW;
+    ctx.strokeRect(X(0), Y(W / 2 - bh), bd * S, 2 * bh * S);
+    ctx.strokeRect(X(L - bd), Y(W / 2 - bh), bd * S, 2 * bh * S);
+    ctx.fillStyle = 'rgba(255,255,255,.85)';
+    ctx.beginPath(); ctx.arc(X(9), Y(W / 2), 2.5, 0, 7); ctx.arc(X(L - 9), Y(W / 2), 2.5, 0, 7); ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = '#f4f4f4';
+    ctx.strokeRect(X(-1.6), Y(W / 2 - GOAL_W / 2), 1.6 * S, GOAL_W * S);
+    ctx.strokeRect(X(L), Y(W / 2 - GOAL_W / 2), 1.6 * S, GOAL_W * S);
+  }
+  function drawLines() {
+    // Her takımın son savunmacısının x'i: savunma hattı / ofsayt çizgisi
+    match.teams.forEach(T => {
+      const xs = T.players.filter(p => p.role !== 'GK').map(p => match.loc(T, p.x, p.y).x);
+      const lx = Math.min(...xs), wx = T.side === 0 ? lx : L - lx;
+      ctx.save(); ctx.setLineDash([6, 6]); ctx.lineWidth = 1.5;
+      ctx.strokeStyle = T.idx === 0 ? 'rgba(255,140,130,.7)' : 'rgba(150,190,255,.7)';
+      ctx.beginPath(); ctx.moveTo(X(wx), Y(0)); ctx.lineTo(X(wx), Y(W)); ctx.stroke(); ctx.restore();
+    });
+  }
+  function draw() {
+    drawPitch();
+    if (!match) return;
+    if ($('lines').checked) drawLines();
+    const b = match.ball;
+    for (const p of match.all) {
+      const T = match.teams[p.team], x = X(p.x), y = Y(p.y), r = 1.05 * S;
+      if (b.owner === p) { ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.beginPath(); ctx.arc(x, y, r * 1.7, 0, 7); ctx.fill(); }
+      ctx.fillStyle = p.role === 'GK' ? (p.team === 0 ? '#f2c94c' : '#9b6cd9') : T.color;
+      ctx.strokeStyle = '#111'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.stroke();
+      // kondisyon halkası
+      ctx.lineWidth = 3; ctx.strokeStyle = p.energy > 0.7 ? '#7be08f' : p.energy > 0.5 ? '#ffd166' : '#ff6b5e';
+      ctx.beginPath(); ctx.arc(x, y, r + 3.5, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * p.energy); ctx.stroke();
+      if (p.press) { ctx.setLineDash([3, 3]); ctx.lineWidth = 1.5; ctx.strokeStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, r + 7, 0, 7); ctx.stroke(); ctx.setLineDash([]); }
+      if (p.stun > 0) { ctx.globalAlpha = 0.5; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.globalAlpha = 1; }
+      ctx.fillStyle = p.role === 'GK' ? '#111' : '#fff'; ctx.font = `600 ${Math.round(r * 1.05)}px ${getComputedStyle(document.body).fontFamily}`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(p.num, x, y + 1);
+    }
+    const h = b.air > 0 ? Math.min(b.air, 12) / 12 : 0;
+    if (h > 0) { ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.arc(X(b.x) + h * 6, Y(b.y) + h * 6, 0.55 * S, 0, 7); ctx.fill(); }
+    ctx.fillStyle = '#fff'; ctx.strokeStyle = '#111'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(X(b.x), Y(b.y), (0.55 + h * 0.35) * S, 0, 7); ctx.fill(); ctx.stroke();
+  }
+
+  // ---------- Skor, istatistik, analist ----------
+  let lastFeed = 0;
+  function pct(a, b) { return b ? Math.round(a / b * 100) + '%' : '–'; }
+  function updateBoard(force) {
+    const [h, a] = match.teams.map(T => T.stats);
+    $('score').textContent = `${h.goals} - ${a.goals}`;
+    $('minute').textContent = match.state === 'ended' ? 'MS' : match.state === 'halftime' ? 'İY' : match.minute() + "'";
+    const pt = h.poss + a.poss || 1;
+    const rows = [
+      [pct(h.poss, pt), 'Topla oynama', pct(a.poss, pt)],
+      [`${h.shots} (${h.onTarget})`, 'Şut (isabet)', `${a.shots} (${a.onTarget})`],
+      [h.xg.toFixed(2), 'Gol beklentisi (xG)', a.xg.toFixed(2)],
+      [`${h.passCmp}/${h.passAtt}`, 'Pas', `${a.passCmp}/${a.passAtt}`],
+      [`${h.thrCmp}/${h.thrAtt}`, 'Ara pas', `${a.thrCmp}/${a.thrAtt}`],
+      [h.lofted, 'Uzun top', a.lofted],
+      [h.crosses, 'Orta', a.crosses],
+      [h.lossOwn, 'Kendi bölgesinde top kaybı', a.lossOwn],
+      [h.highWins, 'Önde top kazanma', a.highWins],
+      [h.offsides, 'Ofsayt', a.offsides],
+      [h.fouls, 'Faul', a.fouls],
+      [Math.round(E.avgEnergy(match.teams[0]) * 100) + '%', 'Kondisyon', Math.round(E.avgEnergy(match.teams[1]) * 100) + '%'],
+    ];
+    $('stats').innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+    if (force || performance.now() - lastNotes > 2500) {
+      lastNotes = performance.now();
+      const notes = match.t > 60 ? E.analyze(match, 0) : [{ k: 'info', t: 'Analist ilk dakikaları izliyor…' }];
+      $('notes').innerHTML = notes.map(n => `<li><span class="tag ${n.k}" style="font-family:var(--mono);font-size:10px;padding:1px 5px;border-radius:4px;color:#fff;height:fit-content;margin-top:2px">${n.k === 'good' ? 'İYİ' : n.k === 'bad' ? 'SORUN' : 'NOT'}</span><span>${n.t}</span></li>`).join('');
+    }
+    const feed = $('feed');
+    for (; lastFeed < match.events.length; lastFeed++) {
+      const e = match.events[lastFeed];
+      if (e.type === 'save' || e.type === 'foul') continue;
+      const who = e.team < 0 ? '' : e.team === 0 ? 'Sen · ' : oppName + ' · ';
+      const d = document.createElement('div');
+      if (e.type === 'goal') d.className = 'goal';
+      d.textContent = `${e.min}'  ${e.type === 'goal' ? 'GOL! ' + (e.team === 0 ? 'Senin takımın' : oppName) : who + e.text}`;
+      feed.prepend(d);
+    }
+  }
+
+  let acc = 0, prev = performance.now();
+  function frame(now) {
+    const dtr = Math.min(0.1, (now - prev) / 1000); prev = now;
+    if (match && running && match.state === 'play') {
+      acc += dtr * speed;
+      while (acc >= DT && match.state === 'play') { match.step(); acc -= DT; }
+      if (match.state === 'halftime') {
+        running = false;
+        // Rakip menajer gerideyse planını değiştirir
+        const [h, a] = match.teams.map(T => T.stats);
+        let msg = 'İkinci yarı için taktiğini ayarla.';
+        if (a.goals < h.goals) {
+          const c = E.counterTactic(match.teams[0].tactic);
+          if (c !== oppName) { match.setTactic(1, Object.assign({}, E.PRESETS[c])); msg = `Rakip menajer geride ve plan değiştiriyor: ${c}. Sen de karşılık verebilirsin.`; $('oppInfo').textContent = 'Yeni plan: ' + c + ' · ' + describe(E.PRESETS[c]); }
+        }
+        showOverlay('Devre arası', msg, E.analyze(match, 0), 'İkinci yarıyı başlat');
+        updateBoard(true);
+      } else if (match.state === 'ended') {
+        running = false;
+        const [h, a] = match.teams.map(T => T.stats);
+        const res = h.goals > a.goals ? 'Kazandın' : h.goals === a.goals ? 'Berabere' : 'Kaybettin';
+        showOverlay(`${res} · ${h.goals}-${a.goals}`, 'Analistin maç sonu raporu:', E.analyze(match, 0), 'Yeni maç');
+        updateBoard(true);
+      }
+      updateBoard();
+    }
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  // ---------- Laboratuvar ----------
+  $('labBtn').onclick = () => {
+    const btn = $('labBtn'); btn.disabled = true;
+    const opp = oppName, tac = Object.assign({}, my);
+    let i = 0, w = 0, d = 0, l = 0, gf = 0, ga = 0;
+    const N = 30;
+    (function run() {
+      const m = new E.Match({ seed: 1000 + i, home: { tactic: tac }, away: { tactic: Object.assign({}, E.PRESETS[opp]) } });
+      m.simulate(mm => { const s = mm.teams.map(T => T.stats); if (s[1].goals < s[0].goals) { const c = E.counterTactic(tac); mm.setTactic(1, Object.assign({}, E.PRESETS[c])); } });
+      const a = m.teams[0].stats.goals, b = m.teams[1].stats.goals;
+      gf += a; ga += b; if (a > b) w++; else if (a === b) d++; else l++;
+      i++;
+      $('labRes').innerHTML = `<div style="margin-bottom:6px">${opp} karşısında ${i}/${N} maç · <b>${w}G ${d}B ${l}M</b> · ort. ${(gf / i).toFixed(1)}-${(ga / i).toFixed(1)}</div>
+        <div class="bar"><i style="width:${w / i * 100}%;background:var(--good)"></i><i style="width:${d / i * 100}%;background:var(--muted)"></i><i style="width:${l / i * 100}%;background:var(--bad)"></i></div>`;
+      if (i < N) setTimeout(run, 0); else btn.disabled = false;
+    })();
+  };
+
+  window.__kc = { get match() { return match; }, draw };
+  syncUI(); newMatch(); requestAnimationFrame(frame);
+})();
+</script>
