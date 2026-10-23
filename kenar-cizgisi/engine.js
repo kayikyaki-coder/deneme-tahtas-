@@ -12,11 +12,11 @@
   'use strict';
 
   // ---- Sabitler (metre / saniye) ----
-  const L = 80, W = 50, GOAL_W = 7, DT = 1 / 30;
+  const L = 105, W = 68, GOAL_W = 7.32, DT = 1 / 30;
   const K = 0.8;           // top sürtünmesi: hız mesafeyle doğrusal azalır, v(s) = v0 - K*s
   const REACH = 0.95;      // oyuncunun topa ulaşma yarıçapı
   const GY0 = W / 2 - GOAL_W / 2, GY1 = W / 2 + GOAL_W / 2;
-  const BOX_D = 14, BOX_HW = 15;
+  const BOX_D = 16.5, BOX_HW = 20.16;
 
   const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
   const lerp = (a, b, t) => a + (b - a) * t;
@@ -32,13 +32,16 @@
   }
 
   // ---- Dizilişler (kaleci + 6 oyuncu). l: hat (0 savunma, 1 orta, 2 forvet), y: 0..1 genişlik ----
+  const D4 = [{ r: 'DEF', l: 0, y: 0.12 }, { r: 'DEF', l: 0, y: 0.38 }, { r: 'DEF', l: 0, y: 0.62 }, { r: 'DEF', l: 0, y: 0.88 }];
   const FORMATIONS = {
-    '2-3-1': [{ r: 'DEF', l: 0, y: 0.3 }, { r: 'DEF', l: 0, y: 0.7 }, { r: 'MID', l: 1, y: 0.12 }, { r: 'MID', l: 0.9, y: 0.5 }, { r: 'MID', l: 1, y: 0.88 }, { r: 'FWD', l: 2, y: 0.5 }],
-    '3-2-1': [{ r: 'DEF', l: 0, y: 0.2 }, { r: 'DEF', l: 0, y: 0.5 }, { r: 'DEF', l: 0, y: 0.8 }, { r: 'MID', l: 1, y: 0.33 }, { r: 'MID', l: 1, y: 0.67 }, { r: 'FWD', l: 2, y: 0.5 }],
-    '2-2-2': [{ r: 'DEF', l: 0, y: 0.3 }, { r: 'DEF', l: 0, y: 0.7 }, { r: 'MID', l: 0.9, y: 0.32 }, { r: 'MID', l: 0.9, y: 0.68 }, { r: 'FWD', l: 2, y: 0.3 }, { r: 'FWD', l: 2, y: 0.7 }],
-    '3-1-2': [{ r: 'DEF', l: 0, y: 0.2 }, { r: 'DEF', l: 0, y: 0.5 }, { r: 'DEF', l: 0, y: 0.8 }, { r: 'MID', l: 0.8, y: 0.5 }, { r: 'FWD', l: 2, y: 0.33 }, { r: 'FWD', l: 2, y: 0.67 }],
-    '2-1-2-1': [{ r: 'DEF', l: 0, y: 0.3 }, { r: 'DEF', l: 0, y: 0.7 }, { r: 'MID', l: 0.7, y: 0.5 }, { r: 'MID', l: 1.3, y: 0.22 }, { r: 'MID', l: 1.3, y: 0.78 }, { r: 'FWD', l: 2, y: 0.5 }],
+    '4-4-2': D4.concat([{ r: 'MID', l: 1, y: 0.12 }, { r: 'MID', l: 0.9, y: 0.38 }, { r: 'MID', l: 0.9, y: 0.62 }, { r: 'MID', l: 1, y: 0.88 }, { r: 'FWD', l: 2, y: 0.4 }, { r: 'FWD', l: 2, y: 0.6 }]),
+    '4-3-3': D4.concat([{ r: 'MID', l: 0.7, y: 0.5 }, { r: 'MID', l: 1.1, y: 0.32 }, { r: 'MID', l: 1.1, y: 0.68 }, { r: 'FWD', l: 1.9, y: 0.15 }, { r: 'FWD', l: 2, y: 0.5 }, { r: 'FWD', l: 1.9, y: 0.85 }]),
+    '4-2-3-1': D4.concat([{ r: 'MID', l: 0.7, y: 0.38 }, { r: 'MID', l: 0.7, y: 0.62 }, { r: 'MID', l: 1.4, y: 0.15 }, { r: 'MID', l: 1.4, y: 0.5 }, { r: 'MID', l: 1.4, y: 0.85 }, { r: 'FWD', l: 2, y: 0.5 }]),
+    '4-1-4-1': D4.concat([{ r: 'MID', l: 0.6, y: 0.5 }, { r: 'MID', l: 1.2, y: 0.12 }, { r: 'MID', l: 1.2, y: 0.38 }, { r: 'MID', l: 1.2, y: 0.62 }, { r: 'MID', l: 1.2, y: 0.88 }, { r: 'FWD', l: 2, y: 0.5 }]),
+    '3-5-2': [{ r: 'DEF', l: 0, y: 0.25 }, { r: 'DEF', l: 0, y: 0.5 }, { r: 'DEF', l: 0, y: 0.75 }, { r: 'MID', l: 0.9, y: 0.08 }, { r: 'MID', l: 0.7, y: 0.5 }, { r: 'MID', l: 1.1, y: 0.32 }, { r: 'MID', l: 1.1, y: 0.68 }, { r: 'MID', l: 0.9, y: 0.92 }, { r: 'FWD', l: 2, y: 0.4 }, { r: 'FWD', l: 2, y: 0.6 }],
+    '5-3-2': [{ r: 'DEF', l: 0.15, y: 0.08 }, { r: 'DEF', l: 0, y: 0.3 }, { r: 'DEF', l: 0, y: 0.5 }, { r: 'DEF', l: 0, y: 0.7 }, { r: 'DEF', l: 0.15, y: 0.92 }, { r: 'MID', l: 1, y: 0.25 }, { r: 'MID', l: 0.9, y: 0.5 }, { r: 'MID', l: 1, y: 0.75 }, { r: 'FWD', l: 2, y: 0.4 }, { r: 'FWD', l: 2, y: 0.6 }],
   };
+
 
   // Taktik ayarları 0..1 arası.
   //  mentality: oyuncuların hücumda ne kadar öne çıktığı
@@ -48,12 +51,13 @@
   //  direct:    pas tarzı (0 kısa/güvenli ... 1 uzun/riskli/havadan)
   //  tempo:     karar hızı (yüksek = hızlı ama aceleci, düşük = sabırlı ama presle sıkışır)
   const PRESETS = {
-    'Dengeli': { formation: '2-3-1', mentality: 0.5, line: 0.5, press: 0.5, width: 0.5, direct: 0.5, tempo: 0.5 },
-    'Gegenpress': { formation: '2-3-1', mentality: 0.65, line: 0.85, press: 0.92, width: 0.5, direct: 0.45, tempo: 0.85 },
-    'Tiki-Taka': { formation: '3-2-1', mentality: 0.65, line: 0.75, press: 0.7, width: 0.9, direct: 0.3, tempo: 0.6 },
-    'Otobüs & Kontra': { formation: '3-1-2', mentality: 0.25, line: 0.1, press: 0.15, width: 0.4, direct: 0.85, tempo: 0.8 },
-    'Kanat Oyunu': { formation: '2-2-2', mentality: 0.55, line: 0.45, press: 0.4, width: 0.95, direct: 0.6, tempo: 0.6 },
+    'Dengeli': { formation: '4-2-3-1', mentality: 0.5, line: 0.5, press: 0.5, width: 0.5, direct: 0.5, tempo: 0.5 },
+    'Gegenpress': { formation: '4-3-3', mentality: 0.65, line: 0.85, press: 0.92, width: 0.5, direct: 0.45, tempo: 0.85 },
+    'Tiki-Taka': { formation: '4-3-3', mentality: 0.65, line: 0.75, press: 0.7, width: 0.9, direct: 0.3, tempo: 0.6 },
+    'Otobüs & Kontra': { formation: '5-3-2', mentality: 0.25, line: 0.1, press: 0.15, width: 0.4, direct: 0.85, tempo: 0.8 },
+    'Kanat Oyunu': { formation: '4-4-2', mentality: 0.55, line: 0.45, press: 0.4, width: 0.95, direct: 0.6, tempo: 0.6 },
   };
+
 
   const TACTIC_KEYS = ['mentality', 'line', 'press', 'width', 'direct', 'tempo'];
 
@@ -77,11 +81,16 @@
     return sp < 11 ? 0.92 : clamp(0.92 - (sp - 11) / 11, 0.1, 0.92);
   }
 
+  // Topun gelecekteki yolu (0..3 sn, 0.1 sn adım): her adımda bir kez hesaplanır, tüm oyuncular paylaşır.
+  const PATH_F = new Float64Array(31);
+  for (let i = 0; i <= 30; i++) PATH_F[i] = (1 - Math.exp(-K * i * 0.1)) / K;
+  const PX = new Float64Array(31), PY = new Float64Array(31);
+
   function makeSquad(base, spread, rng) {
     const r = rng || Math.random;
     const a = () => clamp(base + (r() - 0.5) * 2 * (spread || 0), 0.05, 1);
     const sq = [];
-    for (let i = 0; i < 7; i++) sq.push({ pace: a(), pass: a(), shoot: a(), tackle: a(), tech: a(), stamina: a(), gk: a() });
+    for (let i = 0; i < 11; i++) sq.push({ pace: a(), pass: a(), shoot: a(), tackle: a(), tech: a(), stamina: a(), gk: a() });
     return sq;
   }
 
@@ -90,13 +99,13 @@
       lossOwn: 0, lossMid: 0, lossFin: 0, offsides: 0, tackles: 0, tacklesWon: 0, fouls: 0, saves: 0, energy: 1, highWins: 0 };
   }
 
-  const NUMS = [1, 4, 5, 8, 6, 10, 9];
+  const NUMS = [1, 2, 4, 5, 3, 6, 8, 10, 7, 9, 11];
 
   class Match {
     constructor(o) {
       o = o || {};
       this.rng = mulberry32(o.seed != null ? o.seed : (Math.random() * 1e9) | 0);
-      this.halfLen = o.halfLen || 300;
+      this.halfLen = o.halfLen || 360;
       this.teams = [this.mkTeam(0, o.home || {}), this.mkTeam(1, o.away || {})];
       this.all = this.teams[0].players.concat(this.teams[1].players);
       this.ball = { x: L / 2, y: W / 2, vx: 0, vy: 0, owner: null, lastTeam: 0, air: 0, type: 'loose', kicker: null, offside: null,
@@ -118,7 +127,7 @@
     setFormation(T, f, squad) {
       const slots = [{ r: 'GK', l: -1, y: 0.5 }].concat(FORMATIONS[f] || FORMATIONS['2-3-1']);
       if (!T.players.length) {
-        slots.forEach((s, i) => T.players.push({ id: T.idx * 10 + i, team: T.idx, num: NUMS[i], slot: s, role: s.r, attrs: squad[i],
+        slots.forEach((s, i) => T.players.push({ id: T.idx * 100 + i, team: T.idx, num: NUMS[i], slot: s, role: s.r, attrs: squad[i],
           x: 0, y: 0, vx: 0, vy: 0, tx: 0, ty: 0, sprint: 0.7, energy: 1, stun: 0, protect: 0, cool: 0, decT: 0,
           intent: null, aggr: 0, chase: false, press: false, forceShot: false, noOffside: false, seekT: 0, run: 0, offX: 0, offY: 0, runT: 0, runX: 0, runY: 0 }));
       } else {
@@ -159,9 +168,17 @@
         if (p.cool > 0) p.cool -= dt;
       }
       const b = this.ball;
-      if (!b.owner) { this.icpt[0] = this.bestInterceptor(this.teams[0]); this.icpt[1] = this.bestInterceptor(this.teams[1]); }
-      this.think(this.teams[0]);
-      this.think(this.teams[1]);
+      // Takım zekâsı saniyede 15 kez çalışır; top vurulunca ya da sahip değişince hemen yeniden düşünülür.
+      this.tick = (this.tick || 0) + 1;
+      if ((this.tick & 1) === 0 || this.ev !== this.evSeen) {
+        this.evSeen = this.ev;
+        if (!b.owner) {
+          for (let i = 0; i <= 30; i++) { PX[i] = clamp(b.x + b.vx * PATH_F[i], 0, L); PY[i] = clamp(b.y + b.vy * PATH_F[i], 0, W); }
+          this.icpt[0] = this.bestInterceptor(this.teams[0]); this.icpt[1] = this.bestInterceptor(this.teams[1]);
+        }
+        this.think(this.teams[0]);
+        this.think(this.teams[1]);
+      }
       if (b.owner) {
         b.owner.decT -= dt;
         if (b.owner.decT <= 0) this.decide(b.owner);
@@ -209,16 +226,17 @@
         if (p.stun > 0.25 || (p === b.kicker && p.cool > 0)) continue;
         const ms = this.maxSpeed(p);
         const isGK = p.role === 'GK';
-        for (let i = 0; i <= 30; i++) {
+        // Daha önce bulunan en iyi zamandan sonrasına bakmaya gerek yok.
+        const iMax = best ? Math.min(30, Math.round(best.t * 10) - 1) : 30;
+        for (let i = 0; i <= iMax; i++) {
           const t = i * 0.1;
           if (t < tLand && !isGK) continue;
-          const f = (1 - Math.exp(-K * t)) / K;
-          const x = clamp(b.x + b.vx * f, 0, L), y = clamp(b.y + b.vy * f, 0, W);
+          const x = PX[i], y = PY[i];
           const d = hyp(x - p.x, y - p.y) - REACH;
           if (d <= ms * Math.max(0, t - 0.12 - (isGK ? 0 : lag))) {
             if (isGK) {
               const q = this.loc(T, x, y);
-              const zone = 15 + 12 * T.tactic.line;
+              const zone = 17 + 14 * T.tactic.line;
               if (!(q.x < zone && Math.abs(q.y - W / 2) < 17) && !(b.type === 'shot' && b.lastTeam !== T.idx)) break;
             }
             if (!best || t < best.t) best = { p, t, x, y };
@@ -296,6 +314,7 @@
       const wid = lerp(0.5, 0.96, tac.width), ment = tac.mentality, dir = tac.direct;
       const offX = Math.max(this.secondLastX(T, O), bl.x, L / 2);
       const dShift = bl.x - 0.5 * L;
+      const oxs = O.players.map(o => (T.side === 0 ? o.x : L - o.x)), oys = O.players.map(o => (T.side === 0 ? o.y : W - o.y));
       for (const p of T.players) {
         if (p === owner) continue;
         if (p.role === 'GK') { const g = this.gkSpot(T, bl, true); this.setT(T, p, g.x, g.y, 0.6); continue; }
@@ -321,7 +340,7 @@
             const a = (k / 7) * Math.PI * 2, rr = k === 0 ? 0 : R;
             const cx = clamp(x + Math.cos(a) * rr, 4, lim), cy = clamp(y + Math.sin(a) * rr, 2, W - 2);
             let md = 9;
-            for (const o of O.players) { const q = this.loc(T, o.x, o.y); md = Math.min(md, hyp(q.x - cx, q.y - cy)); }
+            for (let oi = 0; oi < oxs.length; oi++) { const dd = hyp(oxs[oi] - cx, oys[oi] - cy); if (dd < md) md = dd; }
             const sc = md - 0.15 * hyp(cx - x, cy - y);
             if (sc > bs) { bs = sc; bx = cx - x; by = cy - y; }
           }
@@ -332,7 +351,7 @@
       if (!owner) return;
       // Topa yakın oyuncular pas açısı yaratır; kısa pas oynayan takımlarda daha fazla oyuncu topa gelir.
       const ol = this.loc(T, owner.x, owner.y);
-      const ds = lerp(8, 15, dir);
+      const ds = lerp(10, 18, dir);
       const k = dir < 0.4 ? 3 : 2;
       const cand = T.players.filter(p => p !== owner && p.role !== 'GK')
         .map(p => { const q = this.loc(T, p.tx, p.ty); return { p, q, d: hyp(q.x - ol.x, q.y - ol.y) }; })
@@ -348,7 +367,7 @@
       const tac = T.tactic, line = tac.line, press = tac.press;
       let defX = lerp(0.17, 0.44, line) * L + (bl.x - 0.5 * L) * lerp(0.12, 0.35, line);
       defX = clamp(Math.min(defX, bl.x - 2), 4, 0.6 * L);
-      const gap = lerp(7.5, 9.5, line);
+      const gap = lerp(10, 12.5, line);
       const spread = lerp(0.46, 0.62, line);
       const opps = [];
       for (const o of O.players) { if (o.role === 'GK') continue; const q = this.loc(T, o.x, o.y); opps.push({ o, x: q.x, y: q.y }); }
@@ -357,7 +376,7 @@
         const s = p.slot;
         let x = defX + s.l * gap + (s.r === 'FWD' ? press * 6 : 0);
         // Direkt oynayan takım bir forvetini savunmaya katmaz, uzun top için önde bırakır (savunmada bir adam eksik).
-        if (s.r === 'FWD' && p === T.players.find(q => q.role === 'FWD')) x = Math.max(x, L * (0.25 + 0.3 * tac.direct));
+        if (s.r === 'FWD' && p === T.players.filter(q => q.role === 'FWD').sort((a, c) => Math.abs(a.slot.y - 0.5) - Math.abs(c.slot.y - 0.5))[0]) x = Math.max(x, L * (0.25 + 0.3 * tac.direct));
         let y = W / 2 + (s.y - 0.5) * W * spread + (bl.y - W / 2) * 0.38;
         if (s.r !== 'FWD') {
           let m = null, md = 9;
@@ -410,7 +429,7 @@
         if (d < ed) { ed = d; eng = p; }
       }
       if (eng && ol.x < L * 0.6) {
-        const near = clamp((ol.x - 22) / 26, 0, 1);
+        const near = clamp((ol.x - 28) / 34, 0, 1);
         const cd = lerp(0.4, 2.6, near);
         const ov = this.locV(T, owner.vx, owner.vy);
         const fx = ol.x + ov.x * 0.1, fy = ol.y + ov.y * 0.1;
@@ -452,7 +471,7 @@
       let risk = 0;
       for (const o of opp) {
         const proj = (o.x - c.x) * ux + (o.y - c.y) * uy;
-        if (proj > -1 && proj < 1.5 && !lofted) {
+        if (proj > -0.3 && proj < 2.5 && !lofted) {
           // Pası atanın dibindeki rakip: ayağını uzatıp pası kesebilir.
           const pp = Math.abs((o.x - c.x) * uy - (o.y - c.y) * ux);
           if (pp < 1.3) risk = 1 - (1 - risk) * (1 - 0.22 * (1 - pp / 1.3));
@@ -518,12 +537,12 @@
 
       if (!isGK && (p.forceShot || xgRaw(c.x, c.y) > 0.04)) {
         const xg = this.xgEff(c, opp, pf);
-        const s = p.forceShot ? 10 : xg + 0.012 + 0.01 * tac.mentality + noise(); // dönen top / korner şansı
+        const s = p.forceShot ? 10 : xg + 0.022 + 0.016 * tac.mentality + noise(); // dönen top / korner şansı
         if (s > best.s) best = { k: 'shot', s, xg };
       }
       // Uzaklaştırma: baskı altında topu boşluğa, ileriye havadan göndermek.
       if (c.x < L * 0.33 && pf > 0.45) {
-        const pt = { x: Math.min(c.x + 32, L - 6), y: clamp(c.y + (c.y < W / 2 ? -6 : 6), 4, W - 4) };
+        const pt = { x: Math.min(c.x + 40, L - 8), y: clamp(c.y + (c.y < W / 2 ? -8 : 8), 4, W - 4) };
         // Düşüş noktasına kim daha yakın: kendi oyuncularımız mı, rakip mi?
         let na = 0, nd = 0;
         for (const m of T.players) { if (m === p) continue; const q = this.loc(T, m.x, m.y); if (hyp(q.x - pt.x, q.y - pt.y) < 8) na++; }
@@ -541,19 +560,19 @@
         if (!onside) continue;
         const cands = [{ x: ml.x + mv.x * 0.35, y: ml.y + mv.y * 0.35, thr: false }];
         if (m.role !== 'GK' && m.role !== 'DEF' && ml.x > c.x - 3 && ml.x < L - 8)
-          cands.push({ x: Math.min(ml.x + lerp(5, 9, tac.direct), L - 4), y: ml.y + (W / 2 - ml.y) * 0.25, thr: true });
+          cands.push({ x: Math.min(ml.x + lerp(6, 11, tac.direct), L - 4), y: ml.y + (W / 2 - ml.y) * 0.25, thr: true });
         // Savunma arkasına top: hattın omzundaki koşucu için ofsayt çizgisinin gerisindeki boşluğa.
         if (m.role !== 'GK' && m.role !== 'DEF' && ml.x > offX - 4 && offX < L - 14)
-          cands.push({ x: Math.min(offX + lerp(7, 12, tac.direct), L - 5), y: ml.y + (W / 2 - ml.y) * 0.3, thr: true });
+          cands.push({ x: Math.min(offX + lerp(9, 15, tac.direct), L - 6), y: ml.y + (W / 2 - ml.y) * 0.3, thr: true });
         for (const cd of cands) {
           cd.x = clamp(cd.x, 1, L - 1); cd.y = clamp(cd.y, 1, W - 1);
           const d = hyp(cd.x - c.x, cd.y - c.y);
-          if (d < 3.5 || d > 42) continue;
+          if (d < 3.5 || d > 50) continue;
           const lofts = d > 18 ? [false, true] : [false];
           for (const lofted of lofts) {
             const arrive = cd.thr ? 3.5 : lofted ? 4 : 5.5 + 3 * tac.tempo;
             const v0 = K * d + arrive;
-            if (v0 > (lofted ? 34 : 30)) continue;
+            if (v0 > (lofted ? 42 : 32)) continue;
             const lane = this.laneRisk(c, cd, v0, lofted, opp);
             const tb = timeAt(v0, d);
             const tr = Math.max(0, hyp(ml.x - cd.x, ml.y - cd.y) - REACH) / ms + 0.1;
@@ -562,8 +581,9 @@
             for (const o of opp) {
               const od = hyp(o.x - cd.x, o.y - cd.y);
               if (od < rn) rn = od;
-              const to = Math.max(0, od - REACH) / o.s + 0.25 + (cd.thr && o.o.role !== 'GK' ? 0.2 : 0);
-              if (to < arr) cont = 1 - (1 - cont) * (1 - clamp((arr - to) / 0.6, 0, 0.9));
+              // Rakip topa alıcıyla aynı anda ya da biraz sonra varsa bile çekişme vardır.
+              const to = Math.max(0, od - REACH) / o.s + 0.12 + (cd.thr && o.o.role !== 'GK' ? 0.2 : 0);
+              if (to < arr + 0.3) cont = 1 - (1 - cont) * (1 - clamp((arr + 0.3 - to) / 0.8, 0, 0.9));
             }
             const sig = this.passSigma(p, pf, lofted);
             const miss = clamp((sig * d - 1.0) / 4, 0, 0.6);
@@ -589,10 +609,10 @@
       // Orta: kanattan ceza sahasındaki boş alana. Değeri, düşüş noktasına kimin daha çok adamla geleceğine bağlı.
       if (!isGK && c.x > L * 0.58 && Math.abs(c.y - W / 2) > 8) {
         const side = c.y < W / 2 ? -1 : 1;
-        const spots = [{ x: L - 5.5, y: W / 2 + side * 3 }, { x: L - 9, y: W / 2 }, { x: L - 6, y: W / 2 - side * 3 }];
+        const spots = [{ x: L - 6, y: W / 2 + side * 3.5 }, { x: L - 11, y: W / 2 }, { x: L - 7, y: W / 2 - side * 3.5 }];
         for (const sp of spots) {
           const d = hyp(sp.x - c.x, sp.y - c.y);
-          if (d < 8 || d > 34) continue;
+          if (d < 8 || d > 42) continue;
           let na = 0, nd = 0;
           for (const m of T.players) { if (m === p || m.role === 'GK') continue; const q = this.loc(T, m.x, m.y); const dd = hyp(q.x - sp.x, q.y - sp.y); if (dd < 12) na += dd < 5 ? 1 : 0.6; }
           for (const o of opp) { const dd = hyp(o.x - sp.x, o.y - sp.y); if (dd < 5) nd += o.o.role === 'GK' ? 1.6 : 1.1; }
@@ -646,7 +666,7 @@
       } else if (best.k === 'clear') {
         const w = this.loc(T, best.x, best.y);
         st.lofted++;
-        this.kick(p, w.x, w.y, K * 32 + 6, { lofted: true, type: 'pass', sigma: 0.15 });
+        this.kick(p, w.x, w.y, K * 40 + 6, { lofted: true, type: 'pass', sigma: 0.15 });
         this.ball.pred = null;
       } else if (best.k === 'dribble') {
         const w = this.loc(T, best.x, best.y);
@@ -663,6 +683,7 @@
     }
 
     kick(p, tx, ty, v0, o) {
+      this.ev = (this.ev || 0) + 1;
       const b = this.ball, T = this.teams[p.team];
       const sig = o.sigma || 0.03;
       const ang = Math.atan2(ty - b.y, tx - b.x) + this.gauss() * sig;
@@ -753,7 +774,9 @@
       const a = this.all;
       for (let i = 0; i < a.length; i++) for (let j = i + 1; j < a.length; j++) {
         const p = a[i], q = a[j];
-        const dx = q.x - p.x, dy = q.y - p.y, d = hyp(dx, dy);
+        const dx = q.x - p.x, dy = q.y - p.y;
+        if (dx > 1.3 || dx < -1.3 || dy > 1.3 || dy < -1.3) continue;
+        const d = hyp(dx, dy);
         if (d < 1.3 && d > 1e-4) {
           // Topçu, önünde duran rakibi itemez; itilen kendisidir (gövdeyle blok).
           const o = this.ball.owner;
@@ -802,7 +825,7 @@
       if (q.x < BOX_D && Math.abs(q.y - W / 2) < BOX_HW) {
         this.event('penalty', o.team, 'Penaltı!');
         const A = this.teams[o.team];
-        const w = this.loc(A, L - 9, W / 2);
+        const w = this.loc(A, L - 11, W / 2);
         this.restart(o.team, w.x, w.y, 'penalty');
       } else {
         this.event('foul', p.team, 'Faul');
@@ -811,6 +834,7 @@
     }
 
     deflect(p, speed) {
+      this.ev = (this.ev || 0) + 1;
       const b = this.ball;
       const ang = Math.atan2(b.vy, b.vx) + Math.PI + (this.rng() - 0.5) * 2.4;
       b.vx = Math.cos(ang) * speed; b.vy = Math.sin(ang) * speed;
@@ -946,7 +970,11 @@
         const same = p.team === b.lastTeam;
         let pc = same ? (sp < 15 ? 0.97 : clamp(1 - (sp - 15) / 14, 0.2, 1)) : interceptProb(sp);
         if (b.landed > 0) pc *= 0.85;
-        if (!same && b.flight < 0.15) pc = Math.min(pc, 0.2);
+        if (!same && b.flight < 0.15) {
+          // Yeni vurulmuş topu ancak önünde duran rakip kesebilir.
+          if ((p.x - b.x) * b.vx + (p.y - b.y) * b.vy < 0) continue;
+          pc = Math.min(pc, 0.2);
+        }
         pc *= 0.85 + 0.15 * p.attrs.tech;
         if (gkBox && b.type !== 'shot') pc = Math.max(pc, 0.9);
         if (this.rng() < pc) { this.gainControl(p); if (gkBox && !same) p.protect = 1.0; return; }
@@ -954,6 +982,7 @@
     }
 
     gainControl(p) {
+      this.ev = (this.ev || 0) + 1;
       const b = this.ball;
       const T = this.teams[p.team];
       if (b.offside && b.offside.has(p.id) && p.team === b.lastTeam && b.type === 'pass') {
@@ -981,6 +1010,7 @@
     }
 
     restart(team, x, y, kind) {
+      this.ev = (this.ev || 0) + 1;
       const T = this.teams[team], O = this.teams[1 - team], b = this.ball;
       x = clamp(x, 0.5, L - 0.5); y = clamp(y, 0.4, W - 0.4);
       let taker;
@@ -1007,15 +1037,16 @@
       } else {
         for (const o of O.players) {
           const dx = o.x - x, dy = o.y - y, d = hyp(dx, dy);
-          if (d < 6) {
+          if (d < 9.15) {
             const ux = d > 0.01 ? dx / d : 1, uy = d > 0.01 ? dy / d : 0;
-            o.x = clamp(x + ux * 6, 0.3, L - 0.3); o.y = clamp(y + uy * 6, 0.3, W - 0.3);
+            o.x = clamp(x + ux * 9.15, 0.3, L - 0.3); o.y = clamp(y + uy * 9.15, 0.3, W - 0.3);
           }
         }
       }
     }
 
     kickoff(team) {
+      this.ev = (this.ev || 0) + 1;
       const b = this.ball;
       for (const T of this.teams) {
         for (const p of T.players) {
@@ -1024,7 +1055,7 @@
           else { x = Math.min((0.12 + 0.16 * p.slot.l) * L, L / 2 - 2); y = W / 2 + (p.slot.y - 0.5) * W * 0.7; }
           if (T.idx !== team) {
             const dx = L / 2 - x, dy = W / 2 - y, d = hyp(dx, dy);
-            if (d < 7) { x = L / 2 - 7 * (dx / (d || 1)); y = W / 2 - 7 * (dy / (d || 1)); }
+            if (d < 9.5) { x = L / 2 - 9.5 * (dx / (d || 1)); y = W / 2 - 9.5 * (dy / (d || 1)); }
           }
           const w = this.loc(T, x, y);
           p.x = w.x; p.y = w.y; p.vx = p.vy = 0; p.tx = w.x; p.ty = w.y; p.stun = 0; p.intent = null; p.forceShot = false;

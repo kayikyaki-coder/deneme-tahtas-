@@ -111,7 +111,7 @@ td:nth-child(2) { text-align: center; color: var(--muted); font-size: 12px; }
     <div class="label">Hazır planlar</div>
     <div class="presets" id="presets"></div>
     <div>
-      <div class="label" style="margin-bottom:4px">Diziliş (kaleci + 6)</div>
+      <div class="label" style="margin-bottom:4px">Diziliş</div>
       <select id="formation"></select>
     </div>
     <div id="sliders" style="display:grid;gap:10px"></div>
@@ -128,7 +128,7 @@ td:nth-child(2) { text-align: center; color: var(--muted); font-size: 12px; }
       <div class="team away"><span id="aname">Rakip</span><i class="dot" style="background:var(--away)"></i></div>
     </div>
     <div class="pitchwrap">
-      <canvas id="pitch" width="1040" height="680" aria-label="Maç sahası"></canvas>
+      <canvas id="pitch" width="1110" height="740" aria-label="Maç sahası"></canvas>
       <div class="overlay" id="overlay">
         <h3 id="ovTitle">Maç önü</h3>
         <p id="ovText">Soldan planını kur, rakibi seç ve başlat. Maç sırasında taktiği istediğin an değiştirebilirsin.</p>
@@ -318,18 +318,22 @@ td:nth-child(2) { text-align: center; color: var(--muted); font-size: 12px; }
   const M = 3, S = cv.width / (L + 2 * M);
   const X = x => (x + M) * S, Y = y => (y + M) * S;
   function drawPitch() {
-    for (let i = 0; i < 10; i++) { ctx.fillStyle = i % 2 ? '#3a7d3f' : '#357439'; ctx.fillRect(X(i * L / 10), 0, (L / 10) * S + 1, cv.height); }
+    for (let i = 0; i < 12; i++) { ctx.fillStyle = i % 2 ? '#3a7d3f' : '#357439'; ctx.fillRect(X(i * L / 12), 0, (L / 12) * S + 1, cv.height); }
     ctx.fillStyle = '#2f6b34'; ctx.fillRect(0, 0, cv.width, M * S); ctx.fillRect(0, Y(W), cv.width, M * S);
     ctx.fillRect(0, 0, M * S, cv.height); ctx.fillRect(X(L), 0, M * S, cv.height);
     ctx.strokeStyle = 'rgba(255,255,255,.8)'; ctx.lineWidth = 2;
     ctx.strokeRect(X(0), Y(0), L * S, W * S);
     ctx.beginPath(); ctx.moveTo(X(L / 2), Y(0)); ctx.lineTo(X(L / 2), Y(W)); ctx.stroke();
-    ctx.beginPath(); ctx.arc(X(L / 2), Y(W / 2), 6 * S, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(X(L / 2), Y(W / 2), 9.15 * S, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeRect(X(0), Y(W / 2 - 9.16), 5.5 * S, 18.32 * S);
+    ctx.strokeRect(X(L - 5.5), Y(W / 2 - 9.16), 5.5 * S, 18.32 * S);
+    ctx.beginPath(); ctx.arc(X(11), Y(W / 2), 9.15 * S, -0.93, 0.93); ctx.stroke();
+    ctx.beginPath(); ctx.arc(X(L - 11), Y(W / 2), 9.15 * S, Math.PI - 0.93, Math.PI + 0.93); ctx.stroke();
     const bd = E.BOX_D, bh = E.BOX_HW;
     ctx.strokeRect(X(0), Y(W / 2 - bh), bd * S, 2 * bh * S);
     ctx.strokeRect(X(L - bd), Y(W / 2 - bh), bd * S, 2 * bh * S);
     ctx.fillStyle = 'rgba(255,255,255,.85)';
-    ctx.beginPath(); ctx.arc(X(9), Y(W / 2), 2.5, 0, 7); ctx.arc(X(L - 9), Y(W / 2), 2.5, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(X(11), Y(W / 2), 2.5, 0, 7); ctx.fill(); ctx.beginPath(); ctx.arc(X(L - 11), Y(W / 2), 2.5, 0, 7); ctx.fill();
     ctx.lineWidth = 3; ctx.strokeStyle = '#f4f4f4';
     ctx.strokeRect(X(-1.6), Y(W / 2 - GOAL_W / 2), 1.6 * S, GOAL_W * S);
     ctx.strokeRect(X(L), Y(W / 2 - GOAL_W / 2), 1.6 * S, GOAL_W * S);
@@ -350,7 +354,7 @@ td:nth-child(2) { text-align: center; color: var(--muted); font-size: 12px; }
     if ($('lines').checked) drawLines();
     const b = match.ball;
     for (const p of match.all) {
-      const T = match.teams[p.team], x = X(p.x), y = Y(p.y), r = 1.05 * S;
+      const T = match.teams[p.team], x = X(p.x), y = Y(p.y), r = 1.15 * S;
       if (b.owner === p) { ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.beginPath(); ctx.arc(x, y, r * 1.7, 0, 7); ctx.fill(); }
       ctx.fillStyle = p.role === 'GK' ? (p.team === 0 ? '#f2c94c' : '#9b6cd9') : T.color;
       ctx.strokeStyle = '#111'; ctx.lineWidth = 2.5;

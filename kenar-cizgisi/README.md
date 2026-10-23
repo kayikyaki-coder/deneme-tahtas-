@@ -36,7 +36,9 @@ Sonuç fizikten doğar: topun hızı ve sürtünmesi, koşu mesafeleri, ivme ve 
 
 ## Maç motoru (`engine.js`)
 
-- 7'ye 7 (kaleci + 6), 80×50 m saha, saniyede 30 adım.
+- 11'e 11, 105×68 m saha, gerçek ölçülerde ceza sahası ve kale, saniyede 30 fizik adımı. Takım zekâsı saniyede 15 kez çalışır, top vurulunca ya da sahip değişince hemen yenilenir.
+- Dizilişler: 4-4-2, 4-3-3, 4-2-3-1, 4-1-4-1, 3-5-2, 5-3-2.
+- Hız: görüntüsüz bir maç ~280 ms. 4 çekirdekte saniyede ~17 maç, 10.000 maç ~10 dakika.
 - **Top fiziği:** Hız mesafeyle doğrusal azalır, bu sayede pas hızı hedefe göre hesaplanır. Havadan toplar hedefe yakın iner ve düşüş noktasında düello olur.
 - **Oyuncu kararları:** Topu tutan oyuncu her seçeneğin beklenen değerini hesaplar. Seçenekler şunlar: şut, kısa pas, ara pas, savunma arkasına top, havadan pas, orta, top sürme, uzaklaştırma, topu saklama. Değer modeli şöyle çalışır: bir noktada topa sahip olmanın değeri, oradan gol olma olasılığıdır (xG). Bu değer, o nokta ile kale arasındaki yakın savunmacılarla düşer. Pasın başarı tahmini; pas koridoruna giren rakipleri, alıcıya rakipten önce ulaşıp ulaşamayacağını ve pas isabetini hesaba katar. Tahminler gerçekleşen oranlarla doğrulandı: kısa paslarda tahmin ~%90, gerçekleşen ~%89.
 - **Savunma:** Bölge savunması ile adam markajı karışımı. Kale tarafındaki oyuncu topçuyu karşılar ve jokey yapar; kendi bölgesinde ikinci adam sıkıştırmaya gelir. Ek presçiler pas seçeneklerini gölgeler. Karşı pres penceresi var.
@@ -54,19 +56,19 @@ Sonuç fizikten doğar: topun hızı ve sürtünmesi, koşu mesafeleri, ivme ve 
 
 ## Denge durumu (ölçülmüş)
 
-Hazır planlar, eşleşme başına 30 maç. Satır takımının galibiyet-beraberlik-mağlubiyet yüzdesi:
+Hazır planlar, 11'e 11, eşleşme başına 30 maç. Satır takımının galibiyet-beraberlik-mağlubiyet yüzdesi:
 
 |  | Dengeli | Gegenpress | Tiki-Taka | Otobüs & Kontra | Kanat Oyunu | Puan/maç |
 |---|---|---|---|---|---|---|
-| Dengeli | — | 27-13-60 | 20-20-60 | 37-23-40 | 47-30-23 | 1.19 |
-| Gegenpress | 60-13-27 | — | 30-37-33 | 40-17-43 | 60-27-13 | 1.66 |
-| Tiki-Taka | 60-20-20 | 33-37-30 | — | 50-27-23 | 53-33-13 | 1.77 |
-| Otobüs & Kontra | 40-23-37 | 43-17-40 | 23-27-50 | — | 20-23-57 | 1.18 |
-| Kanat Oyunu | 23-30-47 | 13-27-60 | 13-33-53 | 57-23-20 | — | 1.08 |
+| Dengeli (4-2-3-1) | — | 7-30-63 | 13-33-53 | 33-37-30 | 50-23-27 | 1.08 |
+| Gegenpress (4-3-3) | 63-30-7 | — | 37-33-30 | 27-30-43 | 53-30-17 | 1.66 |
+| Tiki-Taka (4-3-3) | 53-33-13 | 30-33-37 | — | 7-17-77 | 63-20-17 | 1.41 |
+| Otobüs & Kontra (5-3-2) | 30-37-33 | 43-30-27 | 77-17-7 | — | 63-17-20 | 1.85 |
+| Kanat Oyunu (4-4-2) | 27-23-50 | 17-30-53 | 17-20-63 | 20-17-63 | — | 0.82 |
 
-Hiçbir hazır plan diğerlerini ezmiyor: en iyisi 1.77, en kötüsü 1.08 puan/maç. Her planın kötü bir eşleşmesi var.
+Taş-kağıt-makas yapısı var: Gegenpress Dengeli'yi, Tiki-Taka Dengeli'yi ve Kanat Oyunu'nu, Otobüs Tiki-Taka'yı ve Kanat Oyunu'nu yeniyor. Kanat Oyunu ve Dengeli şu an zayıf.
 
-**Meta testi:** Rastgele taktiklerle yapılan aramalarda en güçlü çıkan plan, pres yapmayan, dar, direkt ve hücumcu bir 3-1-2 oldu. Atletico tarzı kompakt blok ve kontra. Bu plan hazır planların hepsini yeniyor. Ama doğrulanmış bir karşılığı var: 3-2-1, çok düşük mentalite, yoğun pres ve direkt oyun, 40 maçta 24-6-10 kazanıyor. O karşı taktiğin de kendi karşılıkları var. Yani zincir kırılabiliyor, tek bir yenilmez taktik bulunamadı.
+**Meta testi (7'ye 7 sürümünde yapıldı, 11'e 11 için tekrarlanmalı):** Rastgele taktiklerle yapılan aramalarda en güçlü çıkan plan, pres yapmayan, dar, direkt ve hücumcu bir 3-1-2 oldu. Atletico tarzı kompakt blok ve kontra. Bu plan hazır planların hepsini yeniyor. Ama doğrulanmış bir karşılığı var: 3-2-1, çok düşük mentalite, yoğun pres ve direkt oyun, 40 maçta 24-6-10 kazanıyor. O karşı taktiğin de kendi karşılıkları var. Yani zincir kırılabiliyor, tek bir yenilmez taktik bulunamadı.
 
 ## Dürüst not: bilinen zayıflıklar
 
