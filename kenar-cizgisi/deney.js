@@ -32,7 +32,7 @@ if (!isMainThread) {
   const opt = (name, def) => { const i = args.indexOf('--' + name); return i >= 0 ? args[i + 1] : def; };
   const base = opt('base', 'Dengeli');
   const N = +opt('n', 40);
-  const values = opt('values', '0,0.2,0.4,0.5,0.6,0.8,1').split(',').map(Number);
+  const values = opt('values', '0,0.25,0.5,0.75,1').split(',').map(Number);
   const opps = opt('vs', Object.keys(E.PRESETS).join(',')).split(',');
   const jobs = [];
   for (const v of values) for (const o of opps) for (let s = 0; s < N; s++)

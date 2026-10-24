@@ -50,13 +50,16 @@
   //  width:     hücumda genişlik
   //  direct:    pas tarzı (0 kısa/güvenli ... 1 uzun/riskli/havadan)
   //  tempo:     karar hızı (yüksek = hızlı ama aceleci, düşük = sabırlı ama presle sıkışır)
+  // Ayarlar 5 kademelidir: 0, 0.25, 0.5, 0.75, 1 (çok düşük … çok yüksek).
+  const LEVELS = [0, 0.25, 0.5, 0.75, 1];
   const PRESETS = {
     'Dengeli': { formation: '4-2-3-1', mentality: 0.5, line: 0.5, press: 0.5, width: 0.5, direct: 0.5, tempo: 0.5 },
-    'Gegenpress': { formation: '4-3-3', mentality: 0.65, line: 0.85, press: 0.92, width: 0.5, direct: 0.45, tempo: 0.85 },
-    'Tiki-Taka': { formation: '4-3-3', mentality: 0.65, line: 0.75, press: 0.7, width: 0.9, direct: 0.3, tempo: 0.6 },
-    'Otobüs & Kontra': { formation: '5-3-2', mentality: 0.25, line: 0.1, press: 0.15, width: 0.4, direct: 0.85, tempo: 0.8 },
-    'Kanat Oyunu': { formation: '4-4-2', mentality: 0.55, line: 0.45, press: 0.4, width: 0.95, direct: 0.6, tempo: 0.6 },
+    'Gegenpress': { formation: '4-3-3', mentality: 0.75, line: 0.75, press: 1, width: 0.5, direct: 0.5, tempo: 0.75 },
+    'Tiki-Taka': { formation: '4-3-3', mentality: 0.75, line: 0.75, press: 0.75, width: 1, direct: 0.25, tempo: 0.5 },
+    'Otobüs & Kontra': { formation: '5-3-2', mentality: 0.25, line: 0, press: 0, width: 0.5, direct: 1, tempo: 0.75 },
+    'Kanat Oyunu': { formation: '4-4-2', mentality: 0.5, line: 0.5, press: 0.5, width: 1, direct: 0.5, tempo: 0.5 },
   };
+
 
 
   const TACTIC_KEYS = ['mentality', 'line', 'press', 'width', 'direct', 'tempo'];
@@ -1124,5 +1127,5 @@
   }
   function counterTactic(seen) { return BEST_RESPONSE[nearestPreset(seen)]; }
 
-  return { Match, PRESETS, FORMATIONS, TACTIC_KEYS, makeSquad, analyze, counterTactic, nearestPreset, avgEnergy, mulberry32, L, W, GOAL_W, DT, BOX_D, BOX_HW };
+  return { Match, LEVELS, PRESETS, FORMATIONS, TACTIC_KEYS, makeSquad, analyze, counterTactic, nearestPreset, avgEnergy, mulberry32, L, W, GOAL_W, DT, BOX_D, BOX_HW };
 });

@@ -29,7 +29,7 @@ function poolMode(R, N) {
   const rnd = E.mulberry32(777), forms = Object.keys(E.FORMATIONS);
   for (let r = 0; r < R; r++) {
     const t = { formation: forms[(rnd() * forms.length) | 0] };
-    for (const k of E.TACTIC_KEYS) t[k] = Math.round(rnd() * 10) / 10;
+    for (const k of E.TACTIC_KEYS) t[k] = E.LEVELS[(rnd() * 5) | 0];
     pool.push({ name: 'R' + r, tac: t });
   }
   const P = pool.length, jobs = [];
@@ -71,7 +71,7 @@ if (!isMainThread) {
   const forms = Object.keys(E.FORMATIONS);
   for (let r = 0; r < R; r++) {
     const t = { formation: forms[(rnd() * forms.length) | 0] };
-    for (const k of E.TACTIC_KEYS) t[k] = Math.round(rnd() * 10) / 10;
+    for (const k of E.TACTIC_KEYS) t[k] = E.LEVELS[(rnd() * 5) | 0];
     pool.push({ name: 'R' + r, tac: t, random: true });
   }
   const pi = args.indexOf('--pool');

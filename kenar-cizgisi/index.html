@@ -52,8 +52,11 @@ select { width: 100%; padding: 6px 8px; border: 1px solid var(--line); border-ra
 .slider .head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .slider .head b { font-weight: 600; }
 .slider .head output { font-family: var(--mono); font-size: 12px; color: var(--accent); font-variant-numeric: tabular-nums; }
-.slider input { width: 100%; accent-color: var(--accent); }
-.slider .ends { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+.steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; }
+.step { border: 1px solid var(--line); background: transparent; border-radius: 5px; padding: 5px 0; font-size: 10.5px; letter-spacing: -0.01em; line-height: 1.15; cursor: pointer; color: var(--muted); min-width: 0; overflow-wrap: break-word; hyphens: manual; }
+.step:hover { border-color: var(--accent); color: var(--ink); }
+.step[aria-checked="true"] { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.step:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .slider .hint { font-size: 12px; color: var(--muted); min-height: 2.9em; }
 .profile { display: grid; gap: 4px; font-size: 13px; }
 .profile div { display: flex; gap: 6px; }
@@ -181,24 +184,52 @@ td:nth-child(2) { text-align: center; color: var(--muted); font-size: 12px; }
 (function () {
   const E = window.Taktik;
   const { L, W, GOAL_W, DT } = E;
+  // Her ayar 5 kademeli. Motor içeride 0, 0.25, 0.5, 0.75, 1 değerleriyle çalışır.
+  const LV = [0, 0.25, 0.5, 0.75, 1];
   const SL = [
-    { k: 'mentality', n: 'Mentalite', lo: 'Savunma', hi: 'Hücum',
-      h: v => v > 0.6 ? 'Hücumda daha çok adam, ama top kaybında arkada az kişi kalır.' : v < 0.4 ? 'Arkada sağlam durursun; hücumda forvet yalnız kalabilir.' : 'Hücum ve savunma arasında denge.' },
-    { k: 'line', n: 'Savunma hattı', lo: 'Derin', hi: 'Yüksek',
-      h: v => v > 0.6 ? 'Rakibi sıkıştırır, ofsayt tuzağı kurar. Arkası boş: ara paslara ve uzun toplara açık.' : v < 0.4 ? 'Arkada boşluk yok, ama rakibe kalenin önünde alan ve zaman verirsin.' : 'Orta blok.' },
-    { k: 'press', n: 'Pres', lo: 'Bekle', hi: 'Önde bas',
-      h: v => v > 0.6 ? 'Topu rakip yarı sahada kazanırsın. Çok koşturur, yorar; preslenen adam geçilince boşluk açılır.' : v < 0.4 ? 'Enerji saklarsın, ama rakip rahat oyun kurar.' : 'Orta sahada pres.' },
-    { k: 'width', n: 'Genişlik', lo: 'Dar', hi: 'Geniş',
-      h: v => v > 0.6 ? 'Kapalı savunmayı açar, orta şansı yaratır. Paslar uzar ve araya girmeye açık olur.' : v < 0.4 ? 'Kısa pas mesafeleri, ama merkez kalabalıklaşır.' : 'Normal genişlik.' },
-    { k: 'direct', n: 'Pas tarzı', lo: 'Kısa', hi: 'Direkt',
-      h: v => v > 0.6 ? 'Havadan ve ileri pas presin üstünden geçer, ama isabet düşer ve topu sık kaybedersin.' : v < 0.4 ? 'Topu elde tutarsın; sert prese karşı kendi yarında sıkışabilirsin.' : 'Karışık pas.' },
-    { k: 'tempo', n: 'Tempo', lo: 'Sabırlı', hi: 'Hızlı',
-      h: v => v > 0.6 ? 'Hızlı karar, savunma yerleşmeden vurur. Aceleci kararlar hata getirir.' : v < 0.4 ? 'Doğru anı bekler; ama beklerken presin kucağına düşebilir.' : 'Normal tempo.' },
+    { k: 'mentality', n: 'Mentalite', names: ['Çok savunma', 'Savunma', 'Dengeli', 'Hücum', 'Çok hücum'], h: [
+      'Herkes topun gerisinde. Arka sağlam, hücumda forvet yapayalnız.',
+      'Bekler ve kollar. Hücuma az adam çıkar.',
+      'Hücum ve savunma arasında denge.',
+      'Bekler ve orta saha hücuma katılır. Top kaybında arkada daha az adam kalır.',
+      'Herkes hücumda. Kontra atağa karşı çok açık.'] },
+    { k: 'line', n: 'Savunma hattı', names: ['Çok derin', 'Derin', 'Orta', 'Yüksek', 'Çok yüksek'], h: [
+      'Ceza sahası önünde blok. Arkada hiç boşluk yok, ama rakip kale önünde rahat.',
+      'Kendi yarı sahanda bekler. Ara pas zor, rakibe alan verirsin.',
+      'Orta blok.',
+      'Rakibi sıkıştırır, ofsayt tuzağı kurar. Arkası açılır.',
+      'Orta sahaya kadar çıkar. Rakibi boğar, ama arkaya atılan her top tehlike.'] },
+    { k: 'press', n: 'Pres', names: ['Çok düşük', 'Düşük', 'Orta', 'Yüksek', 'Çok yüksek'], h: [
+      'Top kalene 44 m yaklaşınca 1 kişi basar. Top kaybından sonra karşı pres yok. Enerji saklar.',
+      'Top kalene 56 m yaklaşınca 1 kişi basar. Karşı pres 1.5 sn.',
+      'Top kalene 69 m yaklaşınca (rakip yarı sahanın başında) 1 kişi basar. Karşı pres 2.5 sn.',
+      'Top kalene 82 m yaklaşınca 2 kişi basar, karşı preste 3 kişi. Karşı pres 3.5 sn. Yorar ve daha çok faul getirir.',
+      'Neredeyse her yerde (95 m) 2 kişi, karşı preste 3 kişi basar. Karşı pres 4.5 sn. Çok yorar, arkada boşluk bırakır.'] },
+    { k: 'width', n: 'Genişlik', names: ['Çok dar', 'Dar', 'Normal', 'Geniş', 'Çok geniş'], h: [
+      'Herkes merkezde. Kısa pas mesafesi, ama kanatlar boş kalır.',
+      'Merkezden oyun. Paslar kısa, saha dar.',
+      'Normal genişlik.',
+      'Kanatçılar çizgiye açılır. Kapalı savunmayı esnetir.',
+      'Sahanın tamamını kullanır, orta ve kanat oyunu. Paslar uzar, araya girmeye açık.'] },
+    { k: 'direct', n: 'Pas tarzı', names: ['Çok kısa', 'Kısa', 'Karışık', 'Direkt', 'Çok direkt'], h: [
+      'Hep kısa ve güvenli pas. Top elde kalır, sert prese karşı sıkışabilir.',
+      'Kısa pas ağırlıklı. Pas verip boşluğa koşar (ver-git).',
+      'Kısa ve uzun karışık.',
+      'İleri ve havadan pas tercih eder. Bir forvet hep önde bekler.',
+      'Uzun top ve savunma arkasına top. Presin üstünden geçer, isabet düşer.'] },
+    { k: 'tempo', n: 'Tempo', names: ['Çok sabırlı', 'Sabırlı', 'Normal', 'Hızlı', 'Çok hızlı'], h: [
+      'Doğru anı bekler. Kararlar özenli, ama beklerken baskı yiyebilir.',
+      'Acele etmez, güvenli seçeneği arar.',
+      'Normal tempo.',
+      'Hızlı karar ve hızlı pas. Savunma yerleşmeden vurur.',
+      'Her şey çok hızlı. Aceleci kararlar ve vuruşlar hata getirir.'] },
   ];
   const SPEEDS = [1, 2, 4, 8];
   const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
 
   let my = Object.assign({}, E.PRESETS['Dengeli'], store.get('kc-tactic') || {});
+  const lvOf = v => Math.max(0, Math.min(4, Math.round(v * 4)));
+  E.TACTIC_KEYS.forEach(k => { my[k] = LV[lvOf(my[k])]; }); // eski kayıtlı değerleri kademeye yuvarla
   let oppChoice = store.get('kc-opp') || 'Rastgele';
   let oppName = '', match = null, running = false, speed = 2, started = false, lastNotes = 0;
 
@@ -217,11 +248,15 @@ td:nth-child(2) { text-align: center; color: var(--muted); font-size: 12px; }
   const sbox = $('sliders');
   SL.forEach(s => {
     const d = document.createElement('div'); d.className = 'slider';
-    d.innerHTML = `<div class="head"><b><label for="s-${s.k}">${s.n}</label></b><output id="o-${s.k}"></output></div>
-      <input type="range" id="s-${s.k}" min="0" max="100" step="5">
-      <div class="ends"><span>${s.lo}</span><span>${s.hi}</span></div><div class="hint" id="h-${s.k}"></div>`;
+    d.innerHTML = `<div class="head"><b id="l-${s.k}">${s.n}</b><output id="o-${s.k}"></output></div>
+      <div class="steps" role="radiogroup" aria-labelledby="l-${s.k}" id="s-${s.k}"></div><div class="hint" id="h-${s.k}"></div>`;
     sbox.appendChild(d);
-    d.querySelector('input').oninput = e => { my[s.k] = +e.target.value / 100; syncUI(true); applyTactic(); };
+    s.names.forEach((nm, i) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'step'; b.textContent = nm;
+      b.setAttribute('role', 'radio'); b.id = `s-${s.k}-${i}`;
+      b.onclick = () => { my[s.k] = LV[i]; syncUI(); applyTactic(); };
+      d.querySelector('.steps').appendChild(b);
+    });
   });
 
   function profile(t) {
@@ -242,12 +277,12 @@ td:nth-child(2) { text-align: center; color: var(--muted); font-size: 12px; }
     return out;
   }
 
-  function syncUI(fromSlider) {
+  function syncUI() {
     SL.forEach(s => {
-      const v = my[s.k];
-      if (!fromSlider) $('s-' + s.k).value = Math.round(v * 100);
-      $('o-' + s.k).textContent = Math.round(v * 100);
-      $('h-' + s.k).textContent = s.h(v);
+      const i = lvOf(my[s.k]);
+      [...$('s-' + s.k).children].forEach((b, j) => b.setAttribute('aria-checked', String(j === i)));
+      $('o-' + s.k).textContent = s.names[i];
+      $('h-' + s.k).textContent = s.h[i];
     });
     fsel.value = my.formation;
     [...presetBox.children].forEach(b => {
