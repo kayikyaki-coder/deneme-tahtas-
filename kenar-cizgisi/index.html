@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Kenar Çizgisi</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -161,9 +162,9 @@ td:nth-child(2) { text-align: center; color: var(--muted); font-size: 12px; }
     </section>
     <section class="panel">
       <h2>Laboratuvar</h2>
-      <p style="margin:0;color:var(--muted);font-size:13px">Planını bu rakibe karşı 30 maçta görüntüsüz dene. Tek maçta şans olur, 30 maçta taktik konuşur.</p>
+      <p style="margin:0;color:var(--muted);font-size:13px">Planını bu rakibe karşı görüntüsüz, durmadan dene. Sen durdurana ya da taktiği veya rakibi değiştirene kadar maç oynatır. Tek maçta şans konuşur, yüzlerce maçta taktik.</p>
       <div class="lab">
-        <button class="btn ghost" id="labBtn">30 maç simüle et</button>
+        <button class="btn ghost" id="labBtn">Simülasyonu başlat</button>
         <div class="labres" id="labRes"></div>
       </div>
     </section>
@@ -255,6 +256,7 @@ td:nth-child(2) { text-align: center; color: var(--muted); font-size: 12px; }
     $('profile').innerHTML = profile(my).map(([k, t]) => `<div><span class="tag ${k}">${k === 'good' ? 'ARTI' : k === 'bad' ? 'EKSİ' : 'NOT'}</span><span>${t}</span></div>`).join('');
   }
   function applyTactic() {
+    labStop('Taktik değişti; yeni taktik için yeniden başlat.');
     store.set('kc-tactic', my);
     if (match) match.setTactic(0, Object.assign({}, my));
   }
@@ -263,7 +265,7 @@ td:nth-child(2) { text-align: center; color: var(--muted); font-size: 12px; }
   const osel = $('oppSel');
   ['Rastgele'].concat(Object.keys(E.PRESETS)).forEach(n => osel.add(new Option(n, n)));
   osel.value = oppChoice;
-  osel.onchange = () => { oppChoice = osel.value; store.set('kc-opp', oppChoice); newMatch(); };
+  osel.onchange = () => { labStop('Rakip değişti; yeniden başlat.'); oppChoice = osel.value; store.set('kc-opp', oppChoice); newMatch(); };
   function pickOpp() {
     if (oppChoice !== 'Rastgele') return oppChoice;
     const ns = Object.keys(E.PRESETS);
@@ -444,22 +446,68 @@ td:nth-child(2) { text-align: center; color: var(--muted); font-size: 12px; }
   }
 
   // ---------- Laboratuvar ----------
-  $('labBtn').onclick = () => {
-    const btn = $('labBtn'); btn.disabled = true;
-    const opp = oppName, tac = Object.assign({}, my);
-    let i = 0, w = 0, d = 0, l = 0, gf = 0, ga = 0;
-    const N = 30;
+  // Arka plan işçileriyle (her çekirdeğe bir tane) durdurulana kadar maç oynatır.
+  // İşçi açılamazsa (ör. dosya doğrudan açıldığında) sayfa içinde parça parça çalışır.
+  const lab = { on: false, workers: [], timer: 0, acc: null, opp: '', t0: 0 };
+  function labReset() { return { n: 0, w: 0, d: 0, l: 0, pts: 0, pts2: 0, gf: 0, ga: 0, sf: 0, sa: 0, xf: 0, xa: 0 }; }
+  function labAdd(r) {
+    const a = lab.acc, p = r.gf > r.ga ? 3 : r.gf === r.ga ? 1 : 0;
+    a.n++; a.pts += p; a.pts2 += p * p; a.gf += r.gf; a.ga += r.ga; a.sf += r.sf; a.sa += r.sa; a.xf += r.xf; a.xa += r.xa;
+    if (p === 3) a.w++; else if (p === 1) a.d++; else a.l++;
+  }
+  function labRender(note) {
+    const a = lab.acc;
+    if (!a || !a.n) { $('labRes').innerHTML = note ? `<div>${note}</div>` : '<div>Maçlar başlıyor…</div>'; return; }
+    const n = a.n, ppg = a.pts / n, sd = Math.sqrt(Math.max(0, a.pts2 / n - ppg * ppg)), ci = 1.96 * sd / Math.sqrt(n);
+    const sec = (performance.now() - lab.t0) / 1000, pct = x => Math.round(x / n * 100);
+    $('labRes').innerHTML = `<div style="margin-bottom:6px">${lab.opp} karşısında <b>${n}</b> maç · <b>${a.w}G ${a.d}B ${a.l}M</b> (%${pct(a.w)} / %${pct(a.d)} / %${pct(a.l)})</div>
+      <div class="bar" style="margin-bottom:6px"><i style="width:${a.w / n * 100}%;background:var(--good)"></i><i style="width:${a.d / n * 100}%;background:var(--muted)"></i><i style="width:${a.l / n * 100}%;background:var(--bad)"></i></div>
+      <div>Puan/maç <b>${ppg.toFixed(2)}</b> ± ${ci.toFixed(2)} <span style="color:var(--muted)">(%95 güven)</span></div>
+      <div>Gol ${(a.gf / n).toFixed(2)} - ${(a.ga / n).toFixed(2)} · Şut ${(a.sf / n).toFixed(1)} - ${(a.sa / n).toFixed(1)} · xG ${(a.xf / n).toFixed(2)} - ${(a.xa / n).toFixed(2)}</div>
+      <div style="color:var(--muted)">${lab.on ? (n / sec).toFixed(1) + ' maç/sn · ' + (lab.workers.length ? lab.workers.length + ' çekirdek' : 'sayfa içi mod') : 'Durdu.'}${note ? ' ' + note : ''}</div>`;
+  }
+  function labStart() {
+    lab.on = true; lab.got = false; lab.fallback = false; lab.acc = labReset(); lab.opp = oppName; lab.t0 = performance.now();
+    const job = { tac: Object.assign({}, my), opp: oppName };
+    $('labBtn').textContent = 'Durdur';
+    labRender();
+    const cores = Math.max(1, Math.min(8, (navigator.hardwareConcurrency || 2) - 1));
+    try {
+      for (let k = 0; k < cores; k++) {
+        const w = new Worker('lab-worker.js');
+        w.onmessage = e => { if (lab.on) { lab.got = true; labAdd(e.data); } };
+        w.onerror = ev => { ev.preventDefault(); labFallback(job); };
+        w.postMessage(Object.assign({ seedBase: 1000 + k, stride: cores }, job));
+        lab.workers.push(w);
+      }
+    } catch (err) { labFallback(job); }
+    lab.timer = setInterval(() => labRender(), 400);
+    // Bazı tarayıcılar dosyadan açılan sayfada işçiyi sessizce engeller: sonuç gelmezse sayfa içi moda geç.
+    setTimeout(() => { if (lab.on && !lab.got) labFallback(job); }, 2500);
+  }
+  function labFallback(job) {
+    if (!lab.on || lab.fallback) return;
+    lab.fallback = true;
+    lab.workers.forEach(w => w.terminate()); lab.workers = [];
+    let seed = 1000;
     (function run() {
-      const m = new E.Match({ seed: 1000 + i, home: { tactic: tac }, away: { tactic: Object.assign({}, E.PRESETS[opp]) } });
-      m.simulate(mm => { const s = mm.teams.map(T => T.stats); if (s[1].goals < s[0].goals) { const c = E.counterTactic(tac); mm.setTactic(1, Object.assign({}, E.PRESETS[c])); } });
-      const a = m.teams[0].stats.goals, b = m.teams[1].stats.goals;
-      gf += a; ga += b; if (a > b) w++; else if (a === b) d++; else l++;
-      i++;
-      $('labRes').innerHTML = `<div style="margin-bottom:6px">${opp} karşısında ${i}/${N} maç · <b>${w}G ${d}B ${l}M</b> · ort. ${(gf / i).toFixed(1)}-${(ga / i).toFixed(1)}</div>
-        <div class="bar"><i style="width:${w / i * 100}%;background:var(--good)"></i><i style="width:${d / i * 100}%;background:var(--muted)"></i><i style="width:${l / i * 100}%;background:var(--bad)"></i></div>`;
-      if (i < N) setTimeout(run, 0); else btn.disabled = false;
+      if (!lab.on || !lab.fallback) return;
+      const m = new E.Match({ seed: seed++, home: { tactic: Object.assign({}, job.tac) }, away: { tactic: Object.assign({}, E.PRESETS[job.opp]) } });
+      m.simulate(mm => { const st = mm.teams.map(T => T.stats); if (st[1].goals < st[0].goals) mm.setTactic(1, Object.assign({}, E.PRESETS[E.counterTactic(job.tac)])); });
+      const [a, b] = m.teams.map(T => T.stats);
+      labAdd({ gf: a.goals, ga: b.goals, sf: a.shots, sa: b.shots, xf: a.xg, xa: b.xg });
+      setTimeout(run, 0);
     })();
-  };
+  }
+  function labStop(note) {
+    if (!lab.on) return;
+    lab.on = false; lab.fallback = false;
+    lab.workers.forEach(w => w.terminate()); lab.workers = [];
+    clearInterval(lab.timer);
+    $('labBtn').textContent = 'Simülasyonu başlat';
+    labRender(note);
+  }
+  $('labBtn').onclick = () => (lab.on ? labStop() : labStart());
 
   window.__kc = { get match() { return match; }, draw };
   syncUI(); newMatch(); requestAnimationFrame(frame);
