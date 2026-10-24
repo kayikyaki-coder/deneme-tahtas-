@@ -18,6 +18,98 @@
   const GY0 = W / 2 - GOAL_W / 2, GY1 = W / 2 + GOAL_W / 2;
   const BOX_D = 16.5, BOX_HW = 20.16;
 
+  // ---------------- AYAR DOSYASI ----------------
+  // Motorun ayarlanabilir sayıları. Hepsi tek yerde; komut satırı araçlarında
+  // --set ad=değer ile, kodda new Match({ cfg: { ad: değer } }) ile değiştirilir.
+  const CFG = {
+    // Maç
+    halfLen: 360,            // devre süresi (simülasyon saniyesi)
+    // Oyuncu fiziği
+    speedBase: 5.4,          // en yavaş oyuncunun azami hızı (m/sn)
+    speedPace: 2.6,          // hız özelliği 1 olan oyuncunun ek hızı
+    fatigueFloor: 0.68,      // kondisyon sıfırken kalan hız oranı
+    fatigueSpeed: 0.32,      // kondisyonla geri gelen hız oranı (taban + bu = 1)
+    accel: 10,               // ivme (m/sn²)
+    energyDrain: 0.0105,     // tam sprintte saniyelik kondisyon kaybı
+    energyRecover: 0.0014,   // dururken saniyelik toparlanma
+    halftimeRecover: 0.18,   // devre arasında geri gelen kondisyon
+    // Top sürme
+    dribbleOpen: 0.95,       // açık alanda top sürme hız çarpanı
+    dribbleNear: 0.88,       // 4 m içinde rakip varken
+    dribblePressed: 0.68,    // 2.2 m içinde rakip (baskı) varken
+    dribbleJockey: 0.5,      // önünü kesen (jokey yapan) savunmacı varken
+    // İkili mücadele
+    tackleRange: 1.3,        // yandan/arkadan müdahale menzili (m)
+    tackleRangeFront: 1.8,   // önden müdahale menzili (m)
+    tackleRateBase: 0.9,     // saniyede müdahale denemesi (agresiflik 0)
+    tackleRateAggr: 2.4,     // agresiflik 1'de eklenen deneme
+    tackleWin: 0.32,         // temel müdahale başarısı
+    tackleSupport: 0.06,     // çevredeki her ek savunmacının başarı katkısı
+    foulBase: 0.025,         // müdahale başına faul ihtimali
+    foulAggr: 0.06,          // agresiflik 1'de eklenen faul ihtimali
+    beatenFront: 0.3,        // önden yoklamada geçilen savunmacının toparlanma süresi (sn)
+    beatenBehind: 0.7,       // arkadan/yandan dalıp geçilen savunmacının toparlanma süresi (sn)
+    firstTouchPressure: 0.18,
+    pressedProtect: 0,       // baskı altında top alan oyuncunun müdahaleden korunma süresi (sn)
+    dribbleCrowd: 0.12,      // çevredeki her ek rakip için top sürme başarı kaybı// dibindeki her rakip için ilk dokunuş kontrol kaybı
+    // Pas
+    passErr: 0.02,           // pas açı sapması (iyi pasör)
+    passErrSkill: 0.045,     // pas yeteneği düşükse eklenen sapma
+    passErrPressure: 0.8,    // herhangi bir rakibin baskısında sapma çarpanı (1 + bu × baskı)
+    passErrPresser: 1.5,     // pres yapan oyuncunun baskısında ek sapma
+    passErrTempoMin: 0.8,    // tempo 0'da sapma çarpanı
+    passErrTempo: 0.45,      // tempo 1'de eklenen sapma
+    // Şut ve kaleci
+    shotErr: 0.06,           // şut açı sapması (iyi şutör)
+    shotErrSkill: 0.08,      // şut yeteneği düşükse eklenen sapma
+    shotMinXg: 0.04,         // bu xG'nin altında şut düşünülmez
+    shotBias: 0.022,         // şutun ek değeri (dönen top, korner)
+    shotBiasMent: 0.016,     // mentalite 1'de eklenen şut isteği
+    gkSave: 0.72,            // kalecinin temel kurtarış katsayısı
+    // Taktik: mentalite
+    mentPush: 0.16,          // mentalite 1'de takımın hücumda ileri çıkışı (saha boyu oranı)
+    // Taktik: savunma hattı
+    lineMin: 0.17,           // çok derin hattın kaleye uzaklığı (saha boyu oranı)
+    lineMax: 0.44,           // çok yüksek hattın kaleye uzaklığı
+    throughLag: 0.25,        // ara pası okuma gecikmesi (sn)
+    gkSweepBase: 17,         // kalecinin süpürme alanı (m)
+    gkSweepLine: 14,         // çok yüksek hatta süpürme alanına eklenen (m)
+    // Taktik: pres
+    pressZoneMin: 0.35,      // çok düşük preste basmaya başlanan bölge (kendi kaleden saha oranı)
+    pressZoneMax: 1.0,       // çok yüksek preste
+    pressChaseMax: 1.05,     // çok yüksek preste pas kesmeye koşulan bölge
+    counterPressMin: 0.5,    // top kaybı sonrası karşı pres süresi (sn), çok düşük
+    counterPressMax: 6,      // çok yüksek
+    pressFwdPush: 6,         // forvetin savunmada önde durması (m, çok yüksek preste)
+    pressBlockPush: 7,       // pres aktifken orta saha/forvet bloğunun yukarı çıkışı (m)
+    pressDefPush: 0,         // pres aktifken savunma hattının yukarı çıkışı (m)
+    pressMarkRadius: 8,      // pres aktifken markaj alanına eklenen (m)
+    pressMarkTight: 0.9,     // pres aktifken markaj sıkılığı (0.45 normal)
+    presserAggrMin: 0.35,    // ilk presçinin agresifliği, çok düşük
+    presserAggrMax: 1,       // çok yüksek
+    // Taktik: genişlik
+    widthMin: 0.5,           // çok dar hücum genişliği (saha eni oranı)
+    widthMax: 0.96,          // çok geniş
+    wingPush: 6,             // genişlik arttıkça kanatçıların ileri çıkışı (m)
+    // Taktik: pas tarzı
+    dirForward: 0.02,        // ileri pas isteği ağırlığı
+    dirBackward: 0.012,      // geri pastan kaçınma ağırlığı
+    dirLength: 0.008,        // uzun/kısa pas tercihi ağırlığı
+    dirLofted: 0.01,         // havadan pas tercihi ağırlığı
+    outletMin: 0.25,         // önde bekleyen forvetin konumu (saha oranı), kısa pasta
+    outletDirect: 0.3,       // çok direktte eklenen
+    // Taktik: tempo
+    decideSlow: 0.8,         // çok sabırlıda karar süresi (sn)
+    decideFast: 0.4,         // çok hızlıda karar süresi (sn)
+    pressedVision: 12,       // tam baskı altındaki oyuncunun görebildiği en uzak pas (m)
+    pressedDecideSlow: 0.5,  // baskı altındaki topçunun karar süresi, çok sabırlı (sn)
+    pressedDecideFast: 0.2,  // çok hızlı
+    tempoImpatience: 0.008,  // hızlı tempoda topu tutmaktan kaçınma
+    noiseBase: 0.004,        // karar gürültüsü
+    noiseTempo: 0.012,       // tempo 1'de eklenen karar gürültüsü
+  };
+  let C = CFG; // o an çalışan maçın ayarları
+
   const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
   const lerp = (a, b, t) => a + (b - a) * t;
   const hyp = (x, y) => Math.sqrt(x * x + y * y);
@@ -99,7 +191,9 @@
 
   function newStats() {
     return { goals: 0, shots: 0, onTarget: 0, xg: 0, poss: 0, passAtt: 0, passCmp: 0, thrAtt: 0, thrCmp: 0, lofted: 0, crosses: 0, headers: 0,
-      lossOwn: 0, lossMid: 0, lossFin: 0, offsides: 0, tackles: 0, tacklesWon: 0, fouls: 0, saves: 0, energy: 1, highWins: 0 };
+      lossOwn: 0, lossMid: 0, lossFin: 0, offsides: 0, tackles: 0, tacklesWon: 0, fouls: 0, saves: 0, energy: 1, highWins: 0,
+      // Mekanizma ölçümleri (sağlık raporu için): saniyede 2 kez örneklenir.
+      winOpp: 0, possN: 0, lineSum: 0, lineN: 0, upSum: 0, widthSum: 0, atkN: 0, passLen: 0, holdSum: 0, holdN: 0, pressT: 0 };
   }
 
   const NUMS = [1, 2, 4, 5, 3, 6, 8, 10, 7, 9, 11];
@@ -107,8 +201,10 @@
   class Match {
     constructor(o) {
       o = o || {};
+      this.C = Object.assign({}, CFG, o.cfg || {});
+      C = this.C;
       this.rng = mulberry32(o.seed != null ? o.seed : (Math.random() * 1e9) | 0);
-      this.halfLen = o.halfLen || 360;
+      this.halfLen = o.halfLen || C.halfLen;
       this.teams = [this.mkTeam(0, o.home || {}), this.mkTeam(1, o.away || {})];
       this.all = this.teams[0].players.concat(this.teams[1].players);
       this.ball = { x: L / 2, y: W / 2, vx: 0, vy: 0, owner: null, lastTeam: 0, air: 0, type: 'loose', kicker: null, offside: null,
@@ -153,7 +249,7 @@
     locV(T, vx, vy) { return T.side === 0 ? { x: vx, y: vy } : { x: -vx, y: -vy }; }
 
     maxSpeed(p) {
-      return (5.4 + 2.6 * p.attrs.pace) * (0.68 + 0.32 * p.energy) * (p.stun > 0 ? 0.3 : 1);
+      return (C.speedBase + C.speedPace * p.attrs.pace) * (C.fatigueFloor + C.fatigueSpeed * p.energy) * (p.stun > 0 ? 0.3 : 1);
     }
 
     event(type, team, text) { this.events.push({ t: this.t, min: this.minute(), type, team, text }); }
@@ -162,6 +258,7 @@
     // ---------------- Ana döngü ----------------
     step() {
       if (this.state !== 'play') return;
+      C = this.C;
       const dt = DT;
       for (const p of this.all) {
         p.seekT -= dt;
@@ -191,17 +288,36 @@
       this.tackles(dt);
       this.updateBall(dt);
       this.teams[this.possTeam].stats.poss += dt;
+      if (this.tick % 15 === 0) this.sample();
 
       this.t += dt;
       if (this.half === 1 && this.t >= this.halfLen) {
         this.half = 2; this.state = 'halftime';
-        for (const p of this.all) p.energy = Math.min(1, p.energy + 0.18);
+        for (const p of this.all) p.energy = Math.min(1, p.energy + C.halftimeRecover);
         this.event('half', -1, 'Devre arası');
         this.kickoff(1);
       } else if (this.half === 2 && this.t >= 2 * this.halfLen) {
         this.state = 'ended';
         for (const T of this.teams) T.stats.energy = T.players.reduce((s, p) => s + p.energy, 0) / T.players.length;
         this.event('end', -1, 'Maç sona erdi');
+      }
+    }
+
+    sample() {
+      for (const T of this.teams) {
+        const st = T.stats;
+        let minX = 1e9, minY = 1e9, maxY = -1e9, up = 0, pr = false;
+        for (const p of T.players) {
+          if (p.role === 'GK') continue;
+          const q = this.loc(T, p.x, p.y);
+          if (q.x < minX) minX = q.x;
+          if (q.y < minY) minY = q.y;
+          if (q.y > maxY) maxY = q.y;
+          if (q.x > L / 2) up++;
+          if (p.press) pr = true;
+        }
+        if (this.possTeam === T.idx) { st.atkN++; st.upSum += up; st.widthSum += maxY - minY; }
+        else { st.lineN++; st.lineSum += minX; if (pr) st.pressT += 0.5; }
       }
     }
 
@@ -224,7 +340,7 @@
       const sp0 = hyp(b.vx, b.vy);
       if (b.air > 0 && sp0 > 0.5) tLand = timeAt(sp0, b.air);
       // Ara pası okumak zaman alır: savunmacılar topun arkalarına atıldığını geç fark eder.
-      const lag = b.through && T.idx !== b.lastTeam ? Math.max(0, 0.25 - b.flight) : 0;
+      const lag = b.through && T.idx !== b.lastTeam ? Math.max(0, C.throughLag - b.flight) : 0;
       for (const p of T.players) {
         if (p.stun > 0.25 || (p === b.kicker && p.cool > 0)) continue;
         const ms = this.maxSpeed(p);
@@ -239,7 +355,7 @@
           if (d <= ms * Math.max(0, t - 0.12 - (isGK ? 0 : lag))) {
             if (isGK) {
               const q = this.loc(T, x, y);
-              const zone = 17 + 14 * T.tactic.line;
+              const zone = C.gkSweepBase + C.gkSweepLine * T.tactic.line;
               if (!(q.x < zone && Math.abs(q.y - W / 2) < 17) && !(b.type === 'shot' && b.lastTeam !== T.idx)) break;
             }
             if (!best || t < best.t) best = { p, t, x, y };
@@ -265,7 +381,7 @@
       const bl = this.loc(T, b.x, b.y);
       const owner = b.owner;
       const attacking = owner ? owner.team === T.idx : b.lastTeam === T.idx;
-      for (const p of T.players) { p.chase = false; p.press = false; p.aggr = 0; }
+      for (const p of T.players) { p.chase = false; p.press = false; p.hunt = false; p.aggr = 0; }
       if (attacking) this.shapeAttack(T, O, bl, owner);
       else this.shapeDefend(T, O, bl, owner);
       // Orta havadayken: hücumcular düşüş noktasına koşar, savunmacılar en yakın adamla topa gider.
@@ -281,7 +397,7 @@
         if (mine) {
           // Savunan takım her pasın peşine düşmez: ancak topu önce kapabilecekse,
           // top kendi yarısındaysa ya da pres zonu içindeyse koşar.
-          const pressZone = bl.x <= lerp(0.42, 1.05, T.tactic.press) * L;
+          const pressZone = bl.x <= lerp(C.pressZoneMin, C.pressChaseMax, T.tactic.press) * L;
           const go = attacking || !theirs || mine.t < theirs.t + 0.15 || bl.x < L * 0.33 || (pressZone && mine.t < theirs.t + 0.25);
           if (go) { const p = mine.p; p.tx = mine.x; p.ty = mine.y; p.sprint = 1; p.chase = true; }
         }
@@ -314,7 +430,7 @@
 
     shapeAttack(T, O, bl, owner) {
       const tac = T.tactic;
-      const wid = lerp(0.5, 0.96, tac.width), ment = tac.mentality, dir = tac.direct;
+      const wid = lerp(C.widthMin, C.widthMax, tac.width), ment = tac.mentality, dir = tac.direct;
       const offX = Math.max(this.secondLastX(T, O), bl.x, L / 2);
       const dShift = bl.x - 0.5 * L;
       const oxs = O.players.map(o => (T.side === 0 ? o.x : L - o.x)), oys = O.players.map(o => (T.side === 0 ? o.y : W - o.y));
@@ -324,10 +440,10 @@
         if (p.runT > 0) { this.setT(T, p, Math.min(p.runX, offX - 0.5), p.runY, 1); continue; }
         const s = p.slot;
         // Hücumda takım boyu: savunma topu takip eder, forvet ileride kalıp sahayı uzatır.
-        let x = (0.24 + 0.2 * s.l) * L + dShift * (dShift > 0 ? lerp(0.85, 0.6, s.l / 2) : lerp(0.6, 0.3, s.l / 2)) + (ment - 0.5) * 0.16 * L;
+        let x = (0.24 + 0.2 * s.l) * L + dShift * (dShift > 0 ? lerp(0.85, 0.6, s.l / 2) : lerp(0.6, 0.3, s.l / 2)) + (ment - 0.5) * C.mentPush * L;
         if (s.r === 'FWD') x -= (1 - dir) * 2.5;
         const wing = Math.abs(s.y - 0.5) > 0.25;
-        if (wing && s.r !== "DEF") x += (tac.width - 0.5) * 6;
+        if (wing && s.r !== "DEF") x += (tac.width - 0.5) * C.wingPush;
         if (s.r === 'DEF') x = Math.min(x, bl.x + 2 + ment * 6);
         let y = W / 2 + (s.y - 0.5) * W * wid + (bl.y - W / 2) * 0.12;
         // Forvetler son savunmacının omzunda bekler; zaman zaman koşuyu erken başlatıp ofsayta düşer.
@@ -368,58 +484,77 @@
 
     shapeDefend(T, O, bl, owner) {
       const tac = T.tactic, line = tac.line, press = tac.press;
-      let defX = lerp(0.17, 0.44, line) * L + (bl.x - 0.5 * L) * lerp(0.12, 0.35, line);
+      let defX = lerp(C.lineMin, C.lineMax, line) * L + (bl.x - 0.5 * L) * lerp(0.12, 0.35, line);
       defX = clamp(Math.min(defX, bl.x - 2), 4, 0.6 * L);
       const gap = lerp(10, 12.5, line);
       const spread = lerp(0.46, 0.62, line);
       const opps = [];
       for (const o of O.players) { if (o.role === 'GK') continue; const q = this.loc(T, o.x, o.y); opps.push({ o, x: q.x, y: q.y }); }
+      // Takım halinde pres: pres aktifken orta saha ve forvet bloğu yukarı çıkar ve yakındaki rakibi sıkı markaja alır.
+      const opp = owner && owner.team !== T.idx;
+      const cpWin = this.t - (T.lostAt ?? -99) < lerp(C.counterPressMin, C.counterPressMax, press);
+      // Takım presi rakip yarı sahada (ya da karşı pres anında) uygulanır; kendi yarımızda normal savunma.
+      const pressOn = opp && (cpWin || (bl.x > L * 0.5 && bl.x <= lerp(C.pressZoneMin, C.pressZoneMax, press) * L));
       for (const p of T.players) {
         if (p.role === 'GK') { const g = this.gkSpot(T, bl, false); this.setT(T, p, g.x, g.y, 0.8); continue; }
         const s = p.slot;
-        let x = defX + s.l * gap + (s.r === 'FWD' ? press * 6 : 0);
+        let x = defX + s.l * gap + (s.r === 'FWD' ? press * C.pressFwdPush : 0);
+        if (pressOn) x += press * (s.r === 'DEF' ? C.pressDefPush : C.pressBlockPush);
         // Direkt oynayan takım bir forvetini savunmaya katmaz, uzun top için önde bırakır (savunmada bir adam eksik).
-        if (s.r === 'FWD' && p === T.players.filter(q => q.role === 'FWD').sort((a, c) => Math.abs(a.slot.y - 0.5) - Math.abs(c.slot.y - 0.5))[0]) x = Math.max(x, L * (0.25 + 0.3 * tac.direct));
+        if (s.r === 'FWD' && p === T.players.filter(q => q.role === 'FWD').sort((a, c) => Math.abs(a.slot.y - 0.5) - Math.abs(c.slot.y - 0.5))[0]) x = Math.max(x, L * (C.outletMin + C.outletDirect * tac.direct));
         let y = W / 2 + (s.y - 0.5) * W * spread + (bl.y - W / 2) * 0.38;
-        if (s.r !== 'FWD') {
-          let m = null, md = 9;
+        const tight = pressOn && s.r !== 'DEF';
+        if (s.r !== 'FWD' || tight) {
+          let m = null, md = tight ? 9 + C.pressMarkRadius * press : 9;
           for (const q of opps) { const d = hyp(q.x - x, q.y - y); if (d < md) { md = d; m = q; } }
           if (m) {
             const gx = -m.x, gy = W / 2 - m.y, gd = hyp(gx, gy) || 1;
-            const mx = m.x + (gx / gd) * 1.6, my = m.y + (gy / gd) * 1.6;
-            const f = s.r === 'DEF' ? lerp(0.6, 0.3, line) : 0.45;
+            const mk = tight ? lerp(1.6, 1.0, press) : 1.6;
+            const mx = m.x + (gx / gd) * mk, my = m.y + (gy / gd) * mk;
+            const f = s.r === 'DEF' ? lerp(0.6, 0.3, line) : tight ? lerp(0.45, C.pressMarkTight, press) : 0.45;
             x = lerp(x, mx, f); y = lerp(y, my, f);
           }
-          if (s.r === 'DEF') x = Math.max(x, defX - 2 - (1 - line) * 6);
+          if (s.r === 'DEF') x = Math.max(x, defX - 2 - (1 - line) * 6 + (pressOn ? press * C.pressDefPush : 0));
         }
         this.setT(T, p, x, y, 0.8);
       }
       if (!owner || owner.team === T.idx) return;
       const ol = this.loc(T, owner.x, owner.y);
       // Karşı pres: topu kaybettikten hemen sonra kısa bir süre her yerde basılır, sonra takım yerleşir.
-      const cp = this.t - (T.lostAt ?? -99) < lerp(0.5, 4.5, press);
-      const active = cp || ol.x <= lerp(0.42, 0.9, press) * L;
+      const cp = cpWin;
+      const active = cp || ol.x <= lerp(C.pressZoneMin, C.pressZoneMax, press) * L;
       const outs = T.players.filter(p => p.role !== 'GK' && p.stun <= 0)
         .sort((a, c) => hyp(a.x - owner.x, a.y - owner.y) - hyp(c.x - owner.x, c.y - owner.y));
       if (!outs.length) return;
       const gx = -ol.x, gy = W / 2 - ol.y, gd = hyp(gx, gy) || 1;
       if (active) {
-        const n = 1 + (press > 0.5 ? 1 : 0) + (cp && press > 0.7 ? 1 : 0);
+        // Presçi sayısı: çok düşük 1, düşük/orta 2, yüksek/çok yüksek 3; orta ve üstünde karşı preste +1.
+        const n = Math.min(4, 1 + (press >= 0.25 ? 1 : 0) + (press >= 0.75 ? 1 : 0) + (cp && press >= 0.5 ? 1 : 0));
         const p0 = outs[0];
         this.setT(T, p0, ol.x + (gx / gd) * 0.6, ol.y + (gy / gd) * 0.6, 1);
-        p0.aggr = 0.35 + 0.65 * press; p0.press = true;
+        p0.aggr = lerp(C.presserAggrMin, C.presserAggrMax, press); p0.press = true;
+        // Avcı: rakip yarı sahada ya da karşı pres anında topa basan oyuncu. Pres cezaları sadece avcılardan gelir.
+        const hunt = cp || ol.x > L * 0.5;
+        p0.hunt = hunt;
         const recv = O.players.filter(o => o !== owner && o.role !== 'GK')
           .sort((a, c) => hyp(a.x - owner.x, a.y - owner.y) - hyp(c.x - owner.x, c.y - owner.y));
         // Ek presçiler sadece orta saha ve forvetlerden gelir; stoperler hattı bozmaz.
         const helpers = outs.slice(1).filter(p => p.role !== 'DEF' && hyp(p.x - owner.x, p.y - owner.y) < 15);
+        // İkinci presçi topçuyu ilk presçinin tersi yönden sıkıştırır (tuzak); üçüncüsü yakındaki
+        // bir pas yolunu topun tarafından keser. Kendi bölgesinden uzaktaki rakibe koşmazlar.
         for (let j = 1; j < n && j - 1 < helpers.length; j++) {
-          const r = recv[j - 1]; if (!r) break;
           const hp = helpers[j - 1];
-          // Diğer presçiler en yakın pas seçeneğini topun tarafından sıkı markaja alır (pas gölgesi).
-          const rl = this.loc(T, r.x, r.y);
-          const dx = ol.x - rl.x, dy = ol.y - rl.y, dd = hyp(dx, dy) || 1;
-          this.setT(T, hp, rl.x + (dx / dd) * 1.5, rl.y + (dy / dd) * 1.5, 0.95);
-          hp.aggr = 0.3; hp.press = true;
+          if (j === 1) {
+            const p0l = this.loc(T, p0.x, p0.y);
+            let sx = ol.x - p0l.x, sy = ol.y - p0l.y; const sd = hyp(sx, sy) || 1;
+            this.setT(T, hp, ol.x + (sx / sd) * 1.2, ol.y + (sy / sd) * 1.2, 1);
+          } else {
+            const r = recv[0]; if (!r) break;
+            const rl = this.loc(T, r.x, r.y);
+            if (hyp(rl.x - ol.x, rl.y - ol.y) > 12) break;
+            this.setT(T, hp, lerp(ol.x, rl.x, 0.6), lerp(ol.y, rl.y, 0.6), 0.95);
+          }
+          hp.aggr = 0.3; hp.press = true; hp.hunt = hunt;
         }
       }
       // Kale ile top arasındaki en yakın oyuncu topçuyu karşılar; kaleye yaklaştıkça mesafeyi kapatır.
@@ -461,11 +596,11 @@
 
     // ---------------- Top sahibinin kararı ----------------
     decisionTime(p) {
-      return lerp(0.8, 0.4, this.teams[p.team].tactic.tempo) * (0.7 + 0.6 * this.rng());
+      return lerp(C.decideSlow, C.decideFast, this.teams[p.team].tactic.tempo) * (0.7 + 0.6 * this.rng());
     }
 
-    passSigma(p, pf, lofted) {
-      return (0.02 + 0.045 * (1 - p.attrs.pass)) * (1 + 0.8 * pf) * (lofted ? 1.3 : 1) * (1 + (1 - p.energy) * 0.6) * (0.8 + 0.45 * this.teams[p.team].tactic.tempo);
+    passSigma(p, pf, lofted, pp = 0) {
+      return (C.passErr + C.passErrSkill * (1 - p.attrs.pass)) * (1 + C.passErrPressure * pf + C.passErrPresser * pp) * (lofted ? 1.3 : 1) * (1 + (1 - p.energy) * 0.6) * (C.passErrTempoMin + C.passErrTempo * this.teams[p.team].tactic.tempo);
     }
 
     laneRisk(c, cd, v0, lofted, opp) {
@@ -528,19 +663,23 @@
       let near = 1e9, no = null;
       for (const o of opp) { const d = hyp(o.x - c.x, o.y - c.y); if (d < near) { near = d; no = o; } }
       const pf = clamp((4.5 - near) / 3.5, 0, 1);
+      // Pres baskısı: sadece pres yapan oyunculardan gelen baskı (taktik pres ayarının etkisi).
+      let nearP = 1e9;
+      for (const o of opp) if (o.o.hunt) { const d = hyp(o.x - c.x, o.y - c.y); if (d < nearP) nearP = d; }
+      const pp = clamp((4.5 - nearP) / 3.5, 0, 1);
       const riskW = lerp(1.45, 0.65, 0.6 * tac.direct + 0.4 * tac.mentality);
       const fat = 1 + (1 - p.energy) * 0.6;
       const rng = this.rng;
-      const noise = () => (rng() - 0.5) * (0.004 + 0.012 * tac.tempo) * fat;
+      const noise = () => (rng() - 0.5) * (C.noiseBase + C.noiseTempo * tac.tempo) * fat;
       const Vc = this.valueEff(c.x, c.y, opp), Lc = value(L - c.x, W - c.y);
       const isGK = p.role === 'GK';
 
-      let best = { k: 'hold', s: Vc * (1 - 0.45 * pf) - 0.45 * pf * Lc * riskW - tac.tempo * 0.008 + noise() };
+      let best = { k: 'hold', s: Vc * (1 - 0.45 * pf) - 0.45 * pf * Lc * riskW - tac.tempo * C.tempoImpatience + noise() };
       if (isGK) best.s -= 0.01;
 
-      if (!isGK && (p.forceShot || xgRaw(c.x, c.y) > 0.04)) {
+      if (!isGK && (p.forceShot || xgRaw(c.x, c.y) > C.shotMinXg)) {
         const xg = this.xgEff(c, opp, pf);
-        const s = p.forceShot ? 10 : xg + 0.022 + 0.016 * tac.mentality + noise(); // dönen top / korner şansı
+        const s = p.forceShot ? 10 : xg + C.shotBias + C.shotBiasMent * tac.mentality + noise(); // dönen top / korner şansı
         if (s > best.s) best = { k: 'shot', s, xg };
       }
       // Uzaklaştırma: baskı altında topu boşluğa, ileriye havadan göndermek.
@@ -556,6 +695,8 @@
       }
 
       const offX = Math.max(this.secondLastX(T, O), c.x, L / 2);
+      // Tünel görüşü: baskı altındaki oyuncu sadece yakındaki pas seçeneklerini görür.
+      const visR = lerp(50, C.pressedVision, pp);
       for (const m of T.players) {
         if (m === p || m.stun > 0.3) continue;
         const ml = this.loc(T, m.x, m.y), mv = this.locV(T, m.vx, m.vy), ms = this.maxSpeed(m);
@@ -570,7 +711,7 @@
         for (const cd of cands) {
           cd.x = clamp(cd.x, 1, L - 1); cd.y = clamp(cd.y, 1, W - 1);
           const d = hyp(cd.x - c.x, cd.y - c.y);
-          if (d < 3.5 || d > 50) continue;
+          if (d < 3.5 || d > 50 || d > visR) continue;
           const lofts = d > 18 ? [false, true] : [false];
           for (const lofted of lofts) {
             const arrive = cd.thr ? 3.5 : lofted ? 4 : 5.5 + 3 * tac.tempo;
@@ -588,7 +729,7 @@
               const to = Math.max(0, od - REACH) / o.s + 0.12 + (cd.thr && o.o.role !== 'GK' ? 0.2 : 0);
               if (to < arr + 0.3) cont = 1 - (1 - cont) * (1 - clamp((arr + 0.3 - to) / 0.8, 0, 0.9));
             }
-            const sig = this.passSigma(p, pf, lofted);
+            const sig = this.passSigma(p, pf, lofted, pp);
             const miss = clamp((sig * d - 1.0) / 4, 0, 0.6);
             const succ = (1 - lane) * (1 - cont) * (1 - miss) * (lofted ? 0.92 : 1);
             const rp = clamp((5 - rn) / 4, 0, 1);
@@ -598,9 +739,9 @@
             // Talimatın etkisi: direkt takımlar ileriyi ve havadan topu, kısa pasçılar yakın ve güvenli pası sever.
             // İleri gitme isteği mentaliteden, pasın uzunluğu ve riski pas tarzından gelir.
             const fwd = clamp((cd.x - c.x) / 25, -1, 1);
-            s += (0.15 + 0.4 * tac.mentality + 0.25 * tac.tempo) * Math.max(fwd, 0) * 0.02 + (0.5 * tac.mentality + 0.5 * tac.direct) * Math.min(fwd, 0) * 0.012;
-            s += (tac.direct - 0.5) * clamp((d - 15) / 15, -1, 1) * 0.008;
-            if (lofted) s += (tac.direct - 0.5) * 0.01;
+            s += (0.15 + 0.4 * tac.mentality + 0.25 * tac.tempo) * Math.max(fwd, 0) * C.dirForward + (0.5 * tac.mentality + 0.5 * tac.direct) * Math.min(fwd, 0) * C.dirBackward;
+            s += (tac.direct - 0.5) * clamp((d - 15) / 15, -1, 1) * C.dirLength;
+            if (lofted) s += (tac.direct - 0.5) * C.dirLofted;
             if (cd.thr) s += (tac.direct - 0.4) * 0.008;
             if (m.role === 'GK') s -= 0.004;
             s += noise();
@@ -641,7 +782,10 @@
             const perp = Math.abs((o.x - c.x) * dy - (o.y - c.y) * dx);
             if (perp < 2.2) blk = Math.max(blk, 1 - perp / 2.2);
           }
-          const succ = clamp(1 - 0.75 * blk - 0.35 * pf, 0.05, 0.97);
+          // Yakındaki her rakip (presçi) top sürmeyi riskli hale getirir.
+          let crowd = 0;
+          for (const o of opp) if (o.o.hunt && hyp(o.x - c.x, o.y - c.y) < 3.5) crowd++;
+          const succ = clamp(1 - 0.75 * blk - 0.35 * pf - C.dribbleCrowd * crowd, 0.05, 0.97);
           const wingRun = dx > 0.99 ? (tac.width - 0.4) * 0.01 : 0;
           const s = succ * this.valueEff(pt.x, pt.y, opp) * 0.98 - (1 - succ) * Lc * riskW + (tac.tempo - 0.5) * 0.002 + wingRun + noise();
           if (s > best.s) best = { k: 'dribble', s, x: pt.x, y: pt.y };
@@ -657,7 +801,7 @@
         if (best.lofted) st.lofted++;
         if (best.thr) st.thrAtt++;
         if (best.cross) st.crosses++;
-        this.kick(p, w.x, w.y, best.v0, { lofted: best.lofted, type: 'pass', through: best.thr, cross: !!best.cross, sigma: this.passSigma(p, pf, best.lofted) });
+        this.kick(p, w.x, w.y, best.v0, { lofted: best.lofted, type: 'pass', through: best.thr, cross: !!best.cross, sigma: this.passSigma(p, pf, best.lofted, pp) });
         if (best.cross) { this.ball.crossX = w.x; this.ball.crossY = w.y; }
         this.ball.pred = best.succ;
         // Ver-git: kısa pası veren, savunmacının arkasına koşarak dönüş seçeneği olur (kısa pas oyununda daha sık).
@@ -680,7 +824,7 @@
           const ax = c.x - no.x, ay = c.y - no.y, ad = hyp(ax, ay) || 1;
           this.setT(T, p, c.x + (ax / ad) * 2, c.y + (ay / ad) * 2, 0.5);
         } else this.setT(T, p, c.x, c.y, 0.4);
-        p.decT = pf > 0.4 ? 0.22 : this.decisionTime(p) * 0.5;
+        p.decT = pp > 0.4 ? lerp(C.pressedDecideSlow, C.pressedDecideFast, tac.tempo) : pf > 0.4 ? 0.22 : this.decisionTime(p) * 0.5;
       }
       if (best.k !== 'dribble' && best.k !== 'hold') p.forceShot = false;
     }
@@ -702,6 +846,8 @@
         for (const m of T.players) if (m !== p && this.loc(T, m.x, m.y).x > line + 0.01) set.add(m.id);
         if (set.size) b.offside = set;
       }
+      if (o.type === 'pass') T.stats.passLen += hyp(tx - p.x, ty - p.y);
+      if (p.recvT != null) { T.stats.holdSum += this.t - p.recvT; T.stats.holdN++; p.recvT = null; }
       p.noOffside = false; p.intent = null;
     }
 
@@ -712,7 +858,7 @@
       let side = gl.y < W / 2 ? 1 : -1;
       if (this.rng() < 0.25) side = -side;
       const w = this.loc(T, L + 0.5, W / 2 + side * (GOAL_W / 2 - 0.7));
-      const sig = (0.06 + 0.08 * (1 - p.attrs.shoot)) * (1 + 0.7 * pf) * (1 + (1 - p.energy) * 0.5) * (0.85 + 0.3 * T.tactic.tempo);
+      const sig = (C.shotErr + C.shotErrSkill * (1 - p.attrs.shoot)) * (1 + 0.7 * pf) * (1 + (1 - p.energy) * 0.5) * (0.85 + 0.3 * T.tactic.tempo);
       T.stats.shots++; T.stats.xg += xg;
       this.kick(p, w.x, w.y, 24 + 7 * p.attrs.shoot, { type: 'shot', sigma: sig });
       this.countOnTarget(T);
@@ -748,13 +894,15 @@
       if (b.owner === p) {
         // Açık alanda top sürmek az yavaşlatır; önünü kesen rakip (jokey) çok yavaşlatır.
         const hx = p.tx - p.x, hy = p.ty - p.y, hd = hyp(hx, hy) || 1;
-        let f = 0.95;
+        let f = C.dribbleOpen;
         const T = this.teams[p.team], px = this.loc(T, p.x, p.y).x;
         for (const o of this.teams[1 - p.team].players) {
           const ox = o.x - p.x, oy = o.y - p.y, od = hyp(ox, oy);
           const goalSide = this.loc(T, o.x, o.y).x > px - 0.3;
-          if (od < 1.9 && o.stun <= 0 && (goalSide || (ox * hx + oy * hy) / (od * hd + 1e-6) > 0.35)) { f = 0.5; break; }
-          if (od < 4) f = 0.88;
+          if (od < 1.9 && o.stun <= 0 && (goalSide || (ox * hx + oy * hy) / (od * hd + 1e-6) > 0.35)) { f = C.dribbleJockey; break; }
+          // Arkadan ya da yandan baskı: topu korumak ve dönmek zaman alır.
+          if (od < 2.2 && o.stun <= 0 && o.hunt) f = Math.min(f, C.dribblePressed);
+          else if (od < 4) f = Math.min(f, C.dribbleNear);
         }
         ms *= f;
       }
@@ -762,14 +910,14 @@
       let wx = 0, wy = 0;
       if (d > 0.05) { const s = Math.min(ms, d * 2.2); wx = (dx / d) * s; wy = (dy / d) * s; }
       let ax = wx - p.vx, ay = wy - p.vy;
-      const am = hyp(ax, ay), lim = (p.stun > 0 ? 4 : 10) * dt;
+      const am = hyp(ax, ay), lim = (p.stun > 0 ? 4 : C.accel) * dt;
       if (am > lim) { ax *= lim / am; ay *= lim / am; }
       p.vx += ax; p.vy += ay;
       p.x = clamp(p.x + p.vx * dt, 0.2, L - 0.2);
       p.y = clamp(p.y + p.vy * dt, 0.2, W - 0.2);
       const fr = hyp(p.vx, p.vy) / base;
       const sm = 1.3 - 0.6 * p.attrs.stamina;
-      p.energy -= (0.0105 * fr * fr * fr * sm - 0.0014) * dt;
+      p.energy -= (C.energyDrain * fr * fr * fr * sm - C.energyRecover) * dt;
       p.energy = clamp(p.energy, 0.25, 1);
     }
 
@@ -801,13 +949,13 @@
         if (p.stun > 0 || p.role === 'GK') continue;
         // Topçunun önünde (kale tarafında) duran savunmacı biraz daha uzaktan müdahale edebilir: ikili mücadele.
         const Tp = this.teams[p.team], front = this.loc(Tp, p.x, p.y).x < this.loc(Tp, o.x, o.y).x;
-        if (hyp(p.x - b.x, p.y - b.y) > (front ? 1.8 : 1.3)) continue;
+        if (hyp(p.x - b.x, p.y - b.y) > (front ? C.tackleRangeFront : C.tackleRange)) continue;
         const aggr = this.inOwnBox(p) ? Math.max(p.aggr, 0.5) : p.aggr;
-        if (this.rng() > (0.9 + 2.4 * aggr) * dt) continue;
+        if (this.rng() > (C.tackleRateBase + C.tackleRateAggr * aggr) * dt) continue;
         const S = this.teams[p.team].stats;
         S.tackles++;
-        if (this.rng() < 0.025 + 0.06 * aggr) { this.foul(p, o); return; }
-        const ps = clamp(0.32 + 0.3 * (p.attrs.tackle - o.attrs.tech) + 0.06 * (support - 1), 0.1, 0.8);
+        if (this.rng() < C.foulBase + C.foulAggr * aggr) { this.foul(p, o); return; }
+        const ps = clamp(C.tackleWin + 0.3 * (p.attrs.tackle - o.attrs.tech) + C.tackleSupport * (support - 1), 0.1, 0.8);
         if (this.rng() < ps) {
           S.tacklesWon++;
           if (this.loc(this.teams[p.team], b.x, b.y).x > L / 2) S.highWins++;
@@ -816,7 +964,7 @@
           return;
         } else {
           // Önden yoklama başarısızsa kısa süre dengesini toplar; arkadan/yandan dalan oyuncu tamamen geçilir.
-          p.stun = front ? 0.3 : 0.7;
+          p.stun = front ? C.beatenFront : C.beatenBehind;
         }
       }
     }
@@ -959,7 +1107,7 @@
         b.tried.set(p.id, this.t);
         if (b.type === 'shot' && p.team !== b.lastTeam) {
           if (gkBox) {
-            const ps = (0.72 + 0.3 * p.attrs.gk) * clamp(0.5 + b.flight * 1.4, 0.5, 1) * clamp(1.25 - d * 0.18, 0.5, 1);
+            const ps = (C.gkSave + 0.3 * p.attrs.gk) * clamp(0.5 + b.flight * 1.4, 0.5, 1) * clamp(1.25 - d * 0.18, 0.5, 1);
             if (this.rng() < ps) {
               this.teams[p.team].stats.saves++;
               this.event('save', p.team, 'Kurtarış');
@@ -979,6 +1127,8 @@
           pc = Math.min(pc, 0.2);
         }
         pc *= 0.85 + 0.15 * p.attrs.tech;
+        // Dibinde rakip varken ilk dokunuş zorlaşır.
+        if (same) { let crowd = 0; for (const o of this.teams[1 - p.team].players) if (o.hunt && o.stun <= 0 && hyp(o.x - p.x, o.y - p.y) < 1.6) crowd++; pc *= 1 - C.firstTouchPressure * crowd; }
         if (gkBox && b.type !== 'shot') pc = Math.max(pc, 0.9);
         if (this.rng() < pc) { this.gainControl(p); if (gkBox && !same) p.protect = 1.0; return; }
       }
@@ -1002,13 +1152,19 @@
       if (prev !== p.team) {
         const Lz = this.teams[prev];
         Lz.lostAt = this.t;
+        T.stats.possN++;
+        if (this.loc(T, b.x, b.y).x > L / 2) T.stats.winOpp++;
         for (const q of Lz.players) q.runT = 0;
         const lx = this.loc(Lz, b.x, b.y).x;
         if (lx < L / 3) Lz.stats.lossOwn++; else if (lx < (2 * L) / 3) Lz.stats.lossMid++; else Lz.stats.lossFin++;
       }
       b.owner = p; b.lastTeam = p.team; this.possTeam = p.team; b.type = 'owned'; b.air = 0; b.offside = null; b.kicker = null;
-      p.protect = Math.max(p.protect, 0.2);
+      // Topu alırken dibinde rakip yoksa kısa süre korunur; baskı altında alınan top hemen kapılabilir.
+      let pressed = false;
+      for (const o of this.teams[1 - p.team].players) if (o.hunt && o.stun <= 0 && hyp(o.x - p.x, o.y - p.y) < 1.6) { pressed = true; break; }
+      p.protect = Math.max(p.protect, pressed ? C.pressedProtect : 0.2);
       p.decT = this.decisionTime(p) * 0.6;
+      p.recvT = this.t;
       p.intent = null;
     }
 
@@ -1127,5 +1283,5 @@
   }
   function counterTactic(seen) { return BEST_RESPONSE[nearestPreset(seen)]; }
 
-  return { Match, LEVELS, PRESETS, FORMATIONS, TACTIC_KEYS, makeSquad, analyze, counterTactic, nearestPreset, avgEnergy, mulberry32, L, W, GOAL_W, DT, BOX_D, BOX_HW };
+  return { Match, CFG, LEVELS, PRESETS, FORMATIONS, TACTIC_KEYS, makeSquad, analyze, counterTactic, nearestPreset, avgEnergy, mulberry32, L, W, GOAL_W, DT, BOX_D, BOX_HW };
 });

@@ -54,6 +54,26 @@ Sonuç fizikten doğar: topun hızı ve sürtünmesi, koşu mesafeleri, ivme ve 
 - **Analist:** Maç verisinden okunabilir uyarılar üretir. Örneğin "kendi bölgende 7 top kaybı, rakip önde basıyor".
 - **Laboratuvar:** Planını aynı rakibe karşı görüntüsüz, durmadan dener; sen durdurana ya da taktiği veya rakibi değiştirene kadar sürer. Her çekirdekte bir arka plan işçisi (`lab-worker.js`) çalışır, dosya doğrudan açıldığında sayfa içi moda geçer. Maç sayısı 10, 50, 100 ya da sınırsız seçilebilir. Puan/maç, %95 güven aralığıyla gösterilir.
 
+## Test araçları
+
+Hepsi bütün çekirdekleri kullanır. Hepsi `--set ad=değer,ad2=değer2` ile motor ayarlarını koda dokunmadan değiştirebilir.
+
+```
+node saglik.js                    # ayar sağlık raporu: her ayar her kademede çalışıyor mu? (~4 dk)
+node saglik.js --only press --n 20
+node deney.js press               # tek bir ayarı tarar: mekanizma + rakibe göre sonuç
+node balance.js 30                # hazır planlar arası galibiyet matrisi
+node balance.js 12 --pool 19      # 24 taktik herkes herkesle: her taktiğin karşılığı var mı?
+node saglik.js --only press --set pressedVision=18,tackleWin=0.36   # bir ayarı değiştirip ölç
+```
+
+**Ayar dosyası:** Motorun ayarlanabilir sayıları `engine.js` başındaki `CFG` nesnesinde toplanmıştır (~70 ayar, her birinin açıklamasıyla): fizik, top sürme, ikili mücadele, pas, şut ve kaleci, her taktik ayarının mekanikleri. Bir değeri denemek için kodu açmak gerekmez: `--set` ile verilir, sonuç eskisiyle karşılaştırılır.
+
+**Sağlık raporu** her ayar için üç test yapar:
+- **A. Mekanizma:** Ayarın doğrudan etkilediği ölçüm her kademede bir öncekinden gürültüden büyük şekilde değişmeli. Örneğin savunma hattı yükselince son savunmacı gerçekten öne çıkmalı.
+- **B. Bedel:** Ayarı uca çekmenin beklenen bir bedeli olmalı.
+- **C. Takas:** Ayar en az bir rakibe karşı işe yaramalı ve en az birine karşı zarar vermeli (xG farkıyla ölçülür). Hep işe yarayan ayar meta, hep zarar veren tuzaktır.
+
 ## Denge durumu (ölçülmüş)
 
 Hazır planlar, 11'e 11, eşleşme başına 30 maç. Satır takımının galibiyet-beraberlik-mağlubiyet yüzdesi:

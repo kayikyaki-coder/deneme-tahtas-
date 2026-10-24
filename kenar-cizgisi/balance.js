@@ -6,13 +6,14 @@ const os = require('os');
 const E = require('./engine.js');
 
 function play(job) {
-  const m = new E.Match({ seed: job.seed, home: { tactic: job.a }, away: { tactic: job.b } });
+  const m = new E.Match({ cfg: job.cfg, seed: job.seed, home: { tactic: job.a }, away: { tactic: job.b } });
   m.simulate();
   const [h, a] = m.teams.map(T => T.stats);
   return { i: job.i, j: job.j, hg: h.goals, ag: a.goals, hs: h.shots, as: a.shots, hp: h.poss, ap: a.poss, he: h.energy, ae: a.energy, hx: h.xg, ax: a.xg };
 }
 
 function runJobs(jobs) {
+  const cfg = require('./ayar.js').parseSet(process.argv.slice(2)); jobs.forEach(j => { j.cfg = cfg; });
   const cpu = Math.max(1, os.cpus().length);
   const chunks = Array.from({ length: cpu }, () => []);
   jobs.forEach((j, k) => chunks[k % cpu].push(j));
@@ -86,6 +87,7 @@ if (!isMainThread) {
       jobs.push(flip ? { i: j, j: i, a: pool[j].tac, b: pool[i].tac, seed: seed++ } : { i, j, a: pool[i].tac, b: pool[j].tac, seed: seed++ });
     }
   }
+  const cfg = require('./ayar.js').parseSet(args); jobs.forEach(j => { j.cfg = cfg; });
   const cpu = Math.max(1, os.cpus().length);
   const chunks = Array.from({ length: cpu }, () => []);
   jobs.forEach((j, k) => chunks[k % cpu].push(j));

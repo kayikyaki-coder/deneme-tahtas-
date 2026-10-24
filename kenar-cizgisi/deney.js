@@ -12,7 +12,7 @@ const E = require('./engine.js');
 function play(j) {
   const flip = j.seed % 2 === 1; // taraf avantajı olmasın diye ev/deplasman değişir
   const me = Object.assign({}, j.tac), opp = Object.assign({}, E.PRESETS[j.opp]);
-  const m = new E.Match({ seed: j.seed, home: { tactic: flip ? opp : me }, away: { tactic: flip ? me : opp } });
+  const m = new E.Match({ cfg: j.cfg, seed: j.seed, home: { tactic: flip ? opp : me }, away: { tactic: flip ? me : opp } });
   m.simulate();
   const a = m.teams[flip ? 1 : 0].stats, b = m.teams[flip ? 0 : 1].stats;
   const myE = E.avgEnergy(m.teams[flip ? 1 : 0]);
@@ -37,6 +37,7 @@ if (!isMainThread) {
   const jobs = [];
   for (const v of values) for (const o of opps) for (let s = 0; s < N; s++)
     jobs.push({ v, opp: o, seed: 10000 + s, tac: Object.assign({}, E.PRESETS[base], { [key]: v }) });
+  const cfg = require('./ayar.js').parseSet(args); jobs.forEach(j => { j.cfg = cfg; });
   const cpu = os.cpus().length, chunks = Array.from({ length: cpu }, () => []);
   jobs.forEach((j, i) => chunks[i % cpu].push(j));
   const t0 = Date.now();
