@@ -52,7 +52,7 @@ Sonuç fizikten doğar: topun hızı ve sürtünmesi, koşu mesafeleri, ivme ve 
 - Maç sırasında taktik anında değişir. Devre arasında maç durur ve analist raporu gelir.
 - Rakip menajer gerideyse devre arasında taktik değiştirir. Senin taktiğini en yakın hazır plana eşler ve denge testinde ona karşı en iyi sonucu veren planı seçer.
 - **Analist:** Maç verisinden okunabilir uyarılar üretir. Örneğin "kendi bölgende 7 top kaybı, rakip önde basıyor".
-- **Laboratuvar:** Planını aynı rakibe karşı görüntüsüz, durmadan dener; sen durdurana ya da taktiği veya rakibi değiştirene kadar sürer. Her çekirdekte bir arka plan işçisi (`lab-worker.js`) çalışır, dosya doğrudan açıldığında sayfa içi moda geçer. Puan/maç, %95 güven aralığıyla gösterilir.
+- **Laboratuvar:** Planını aynı rakibe karşı görüntüsüz, durmadan dener; sen durdurana ya da taktiği veya rakibi değiştirene kadar sürer. Her çekirdekte bir arka plan işçisi (`lab-worker.js`) çalışır, dosya doğrudan açıldığında sayfa içi moda geçer. Maç sayısı 10, 50, 100 ya da sınırsız seçilebilir. Puan/maç, %95 güven aralığıyla gösterilir.
 
 ## Denge durumu (ölçülmüş)
 

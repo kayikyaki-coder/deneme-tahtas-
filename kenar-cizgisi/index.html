@@ -164,6 +164,7 @@ td:nth-child(2) { text-align: center; color: var(--muted); font-size: 12px; }
       <h2>Laboratuvar</h2>
       <p style="margin:0;color:var(--muted);font-size:13px">Planını bu rakibe karşı görüntüsüz, durmadan dene. Sen durdurana ya da taktiği veya rakibi değiştirene kadar maç oynatır. Tek maçta şans konuşur, yüzlerce maçta taktik.</p>
       <div class="lab">
+        <div class="speed" id="labN" role="group" aria-label="Maç sayısı"></div>
         <button class="btn ghost" id="labBtn">Simülasyonu başlat</button>
         <div class="labres" id="labRes"></div>
       </div>
@@ -451,16 +452,18 @@ td:nth-child(2) { text-align: center; color: var(--muted); font-size: 12px; }
   const lab = { on: false, workers: [], timer: 0, acc: null, opp: '', t0: 0 };
   function labReset() { return { n: 0, w: 0, d: 0, l: 0, pts: 0, pts2: 0, gf: 0, ga: 0, sf: 0, sa: 0, xf: 0, xa: 0 }; }
   function labAdd(r) {
+    if (labTarget && lab.acc.n >= labTarget) return;
     const a = lab.acc, p = r.gf > r.ga ? 3 : r.gf === r.ga ? 1 : 0;
     a.n++; a.pts += p; a.pts2 += p * p; a.gf += r.gf; a.ga += r.ga; a.sf += r.sf; a.sa += r.sa; a.xf += r.xf; a.xa += r.xa;
     if (p === 3) a.w++; else if (p === 1) a.d++; else a.l++;
+    if (labTarget && a.n >= labTarget) labStop(`${labTarget} maç tamamlandı.`);
   }
   function labRender(note) {
     const a = lab.acc;
     if (!a || !a.n) { $('labRes').innerHTML = note ? `<div>${note}</div>` : '<div>Maçlar başlıyor…</div>'; return; }
     const n = a.n, ppg = a.pts / n, sd = Math.sqrt(Math.max(0, a.pts2 / n - ppg * ppg)), ci = 1.96 * sd / Math.sqrt(n);
     const sec = (performance.now() - lab.t0) / 1000, pct = x => Math.round(x / n * 100);
-    $('labRes').innerHTML = `<div style="margin-bottom:6px">${lab.opp} karşısında <b>${n}</b> maç · <b>${a.w}G ${a.d}B ${a.l}M</b> (%${pct(a.w)} / %${pct(a.d)} / %${pct(a.l)})</div>
+    $('labRes').innerHTML = `<div style="margin-bottom:6px">${lab.opp} karşısında <b>${n}</b>${labTarget ? ' / ' + labTarget : ''} maç · <b>${a.w}G ${a.d}B ${a.l}M</b> (%${pct(a.w)} / %${pct(a.d)} / %${pct(a.l)})</div>
       <div class="bar" style="margin-bottom:6px"><i style="width:${a.w / n * 100}%;background:var(--good)"></i><i style="width:${a.d / n * 100}%;background:var(--muted)"></i><i style="width:${a.l / n * 100}%;background:var(--bad)"></i></div>
       <div>Puan/maç <b>${ppg.toFixed(2)}</b> ± ${ci.toFixed(2)} <span style="color:var(--muted)">(%95 güven)</span></div>
       <div>Gol ${(a.gf / n).toFixed(2)} - ${(a.ga / n).toFixed(2)} · Şut ${(a.sf / n).toFixed(1)} - ${(a.sa / n).toFixed(1)} · xG ${(a.xf / n).toFixed(2)} - ${(a.xa / n).toFixed(2)}</div>
@@ -508,6 +511,18 @@ td:nth-child(2) { text-align: center; color: var(--muted); font-size: 12px; }
     labRender(note);
   }
   $('labBtn').onclick = () => (lab.on ? labStop() : labStart());
+  // Maç sayısı: 10 / 50 / 100 ya da sınırsız (durdurana kadar).
+  let labTarget = 0;
+  [[10, '10 maç'], [50, '50 maç'], [100, '100 maç'], [0, 'Sınırsız']].forEach(([n, t]) => {
+    const b = document.createElement('button'); b.className = 'chip'; b.type = 'button'; b.textContent = t;
+    b.setAttribute('aria-pressed', String(n === labTarget));
+    b.onclick = () => {
+      labTarget = n;
+      [...$('labN').children].forEach(c => c.setAttribute('aria-pressed', String(c === b)));
+      if (lab.on && labTarget && lab.acc.n >= labTarget) labStop('Hedefe ulaşıldı.');
+    };
+    $('labN').appendChild(b);
+  });
 
   window.__kc = { get match() { return match; }, draw };
   syncUI(); newMatch(); requestAnimationFrame(frame);
