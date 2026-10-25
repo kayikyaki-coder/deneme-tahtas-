@@ -116,17 +116,32 @@ FM'de Hız ve Hızlanma neredeyse her şeyi belirler. Bunu baştan önlemek içi
 - **Denge:** Güç'e katıldı.
 - **Hızlanma ve Çeviklik (FM'deki ayrı hâlleri):** Tek özellikte, Çeviklik adıyla birleşti.
 
-## Kaleci (7)
+## Kaleci (2) — kararlaştırıldı
 
-| Özellik | Motordaki mekanik |
+Kaleciye özel yalnızca iki özellik vardır. Kaleci de saha oyuncularıyla aynı 20 özelliğe sahiptir; bunların bazıları kaleci için başka bir işe yarar. Böylece yeni ad öğrenmek gerekmez.
+
+| Özellik | Ne yapar | Motordaki mekanik |
+|---|---|---|
+| Refleks | Şutu kurtarma: tepki süresi ve uzanabildiği mesafe | Şuta karşı kurtarış olasılığı ve uzanma menzili |
+| Elle Kontrol | Topu elle tutabilme: şutu tutmak ya da sektirmek, ortayı tutmak ya da yumruklamak | Kurtarışta topu tutma ya da sektirme oranı (sektirilen top dönen topa yol açar) |
+
+### Kalecilikte diğer özelliklerin rolü
+
+| Kalecilik işi | Belirleyen özellikler |
 |---|---|
-| Refleks | Yakın mesafe şutta kurtarış olasılığı ve uzanma menzili |
-| Birebir | Karşı karşıya pozisyonda kurtarış |
-| Pozisyon | Açı kapatma konumundaki hata |
-| Hava Hakimiyeti | Ortayı ve havadan gelen topu tutma |
-| Kaleden Çıkma | Süpürme alanı; çıkma kararının doğruluğu (yüksek hatla ilişkili) |
-| Topu Tutma | Kurtarışta topu tutma ya da sektirme oranı |
-| Ayakla Oyun | Oyun kurma ve uzun vuruş isabeti |
+| Birebir pozisyon | Refleks + Çeviklik + Pozisyon Alma |
+| Doğru yerde durma, açı kapatma | Pozisyon Alma |
+| Kaleden çıkma ve süpürme | Karar Alma (ne zaman çıkacağı) + Çeviklik (ne kadar çabuk ulaşacağı). Süpürme alanını taktikteki savunma hattı belirler. |
+| Hava topları ve ceza sahası hakimiyeti | Boy + Zıplama + Elle Kontrol; ortaya çıkıp çıkmama kararı Karar Alma |
+| Ayakla uzun vuruş ve elle atış | Uzun Pas / Orta |
+| Kısa pasla oyun kurma | Pas |
+| Geri pasları kontrol etme | İlk Dokunuş |
+| Maç boyunca dikkat, gol yedikten sonra hata | Konsantrasyon |
+| Savunmayı yönetme (FM'deki İletişim) | Gerekirse Liderlik (karakteristik grubunda) |
+
+Bunun sonucu olarak farklı kaleci tipleri kendiliğinden ortaya çıkar: Pas'ı ve Karar Alma'sı iyi bir kaleci yüksek savunma hattının arkasını süpürür ve oyun kurar; Refleksi ve Boy'u iyi ama Pas'ı zayıf bir kaleci derin bloğun arkasında daha uygundur. Kaleci seçimi taktiğe bağlanır.
+
+**Eklenmeyenler:** FM'deki Birebir, Kaleden Çıkma, Hava Hakimiyeti, Ceza Sahası Hakimiyeti, Yumruklama, Ayakla Vuruş, Atış, İletişim ve Eksantriklik ayrı özellik olarak yoktur; yukarıdaki tabloda karşılandıkları yer var.
 
 ## Gizli (3)
 
@@ -140,7 +155,7 @@ FM'de Hız ve Hızlanma neredeyse her şeyi belirler. Bunu baştan önlemek içi
 
 | Taktik ayarı | Yaslandığı özellikler | Kadroya uymazsa |
 |---|---|---|
-| Yüksek savunma hattı | Stoperlerin Hızı ve Çevikliği, Pozisyon Alma, kalecinin Kaleden Çıkması | Arkaya atılan her top tehlike |
+| Yüksek savunma hattı | Stoperlerin Hızı ve Çevikliği, Pozisyon Alma; kalecinin Karar Alma ve Çevikliği (süpürme) | Arkaya atılan her top tehlike |
 | Yoğun pres | Dayanıklılık, Zindelik (yoğun takvimde), Çeviklik, Pozisyon Alma, Top Kapma; rakibin düşük Konsantrasyon ve İlk Dokunuşu presi güçlendirir | Erken yorulma, geçilen presçiler, yoğun takvimde çöküş |
 | Kısa pas | Pas, İlk Dokunuş, Vizyon, Topsuz Alan, Konsantrasyon | Kendi yarı sahada top kaybı |
 | Direkt / uzun top | Forvetin Hızı, Güç, Boy, Zıplama ve Kafa Vuruşu; pasörün Vizyonu | Havada kaybedilen toplar |
@@ -150,7 +165,7 @@ FM'de Hız ve Hızlanma neredeyse her şeyi belirler. Bunu baştan önlemek içi
 
 ## Uygulama sırası
 
-1. **Motorda mekaniği zaten olanlar:** Pas, İlk Dokunuş, Dripling, Bitiricilik, Top Kapma, Hız, Çeviklik, Dayanıklılık, Karar Alma, Vizyon, Topsuz Alan, kaleci Refleks ve Kaleden Çıkma. Bunlar mevcut mekaniğe bağlanır.
-2. **Küçük yeni mekanik isteyenler:** Uzaktan Şut, Uzun Pas / Orta, Kafa Vuruşu (birleşik yetenek), Zıplama, Güç, Pozisyon Alma ve diğer kaleci özellikleri.
+1. **Motorda mekaniği zaten olanlar:** Pas, İlk Dokunuş, Dripling, Bitiricilik, Top Kapma, Hız, Çeviklik, Dayanıklılık, Karar Alma, Vizyon, Topsuz Alan, kalecinin Refleksi ve Elle Kontrolü. Bunlar mevcut mekaniğe bağlanır.
+2. **Küçük yeni mekanik isteyenler:** Uzaktan Şut, Uzun Pas / Orta, Kafa Vuruşu (birleşik yetenek), Zıplama, Güç, Pozisyon Alma; kalecide çıkma kararı ve hava topları.
 3. **Yeni sistem isteyenler:** Konsantrasyon seviyesi, Zindelik (maçtan maça yorgunluk), Boy, Duran Top (frikik, korner, penaltı mekaniği), kartlar, gizli özellikler, mevkiye göre bütçe (genel güç hesabı).
 4. Her adımdan sonra özellik önem testi ve `saglik.js`.
