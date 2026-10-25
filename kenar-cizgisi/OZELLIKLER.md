@@ -10,20 +10,44 @@ FM'e yakın, 1-20 ölçekli bir set. Karakteristik (kişilik ve oyuncu alışkan
 4. **Mevkiye göre bütçe:** Oyuncunun genel gücü, özelliklerin mevkiye göre ağırlıklı toplamıdır (FM'deki CA gibi). Bir oyuncu her şeyde 20 olamaz.
 5. **Ölçülerek dengelenir:** `saglik.js`'in benzeri bir "özellik önem testi" her özelliği 8'den 16'ya çıkarıp etkisini ölçer. Birkaç özellik oyunu domine ediyorsa (FM'de Hız ve Hızlanma gibi) ağırlıklar düzeltilir.
 
-## Teknik (10)
+## Teknik (9) — kararlaştırıldı
 
-| Özellik | Motordaki mekanik | Önem taşıdığı taktik |
+| Özellik | Ne yapar | Motordaki mekanik |
 |---|---|---|
-| Pas | Pas açı sapması ve hız hatası | Kısa pas, her şey |
-| İlk Dokunuş | Topu kontrol olasılığı; baskı altında kontrol kaybı | Prese karşı oyun kurma |
-| Top Sürme | Top sürme hızı; ikili mücadelede rakibi geçme | Kanat oyunu, kontra |
-| Bitiricilik | 16 m içinden şut sapması | Her şey |
-| Uzaktan Şut | 16 m dışından şut sapması ve şut isteği | Derin bloğa karşı |
-| Orta | Orta isabeti | Kanat oyunu |
-| Kafa Vuruşu | Kafa şutunun isabeti; hava düellosunda pay | Orta, uzun top, duran top |
-| Top Kapma | Müdahale başarısı; başarısız olunca geçilme | Pres, savunma |
-| Markaj | Markajın sıkılığı ve koşucuyu takip | Adam adama, derin blok |
-| Duran Top | Penaltı, serbest vuruş, korner (ileride üçe ayrılabilir) | Duran top |
+| Pas | Yerden kısa ve orta mesafe pasların isabeti ve istenen yere gitmesi. İsabet her zaman oyuncunun ayağı değildir: ara pasın iki savunmacının arasından geçmesi de buna bağlıdır. (Pası *görmek* Vizyon'dur; Pas onu *uygulamaktır*.) | Hedef noktaya göre pas açı ve hız sapması |
+| Uzun Pas / Orta | Uzun pasların ve ortaların isabeti; topun istenen noktaya düşmesi | Havadan pasın ve ortanın düşüş noktası sapması |
+| Uzaktan Şut | Ceza sahası dışından şutların isabeti ve hızı | Ceza sahası dışı şut sapması ve şut hızı |
+| Bitiricilik | Ceza sahası içinde her türlü bitiricilik | Ceza sahası içi şut sapması |
+| Dripling | Top sürme: çalım, top sürerken yavaşlamama, rakibin top çalmasına karşı koyma, daha hızlı top sürme | Top sürme hız çarpanı; ikili mücadelede topu kaptırmama |
+| İlk Dokunuş | Topu alma ve kontrol etme; özellikle baskı altında, sert ya da havadan gelen toplarda | Pası kontrol olasılığı; baskı altında kontrol kaybı (pres buna yaslanır) |
+| Kafa Vuruşu | Havada topla buluşunca kafayla yapılan şutun ve pasın isabeti. Bitiricilik ya da Pas ile birlikte çalışır. (Havada topa ulaşmak Zıplama ve Güç'tür; Kafa Vuruşu ulaştıktan sonrasıdır.) | Kafa şutu / pası sapması (birleşik yetenek) |
+| Top Kapma | Rakipten topu kapma ihtimali. Düşükse başarısız top çalma girişimleri, gereksiz fauller ve kartlar | Müdahale başarısı; faul ve kart olasılığı |
+| Duran Top | Korner, frikik ve penaltıda ilgili diğer yetenekle birlikte çalışarak başarıyı artırır | Birleşik yeteneğin yardımcı çarpanı |
+
+### Birleşik yetenekler
+
+Bazı durumlarda iki yetenek birlikte çalışır: ana yetenek belirleyicidir, yardımcı yetenek onu bir miktar artırır ya da düşürür.
+
+**etkin yetenek = ana yetenek × (taban + (1 − taban) × yardımcı / 20)**, taban başlangıçta 0.85 (ayar dosyasında, test edilerek ayarlanır).
+
+Örnek: Uzaktan Şut 20, Duran Top 5 olan oyuncunun frikik şutu 17.8 olur. Uzaktan şutu çok iyi olsa da duran topu iyi değilse başarısı bir derece düşer.
+
+| Durum | Ana yetenek | Yardımcı yetenek |
+|---|---|---|
+| Direkt frikik | Uzaktan Şut (yakın mesafede Bitiricilik) | Duran Top |
+| Korner, frikikten orta | Uzun Pas / Orta | Duran Top |
+| Penaltı | Bitiricilik | Duran Top |
+| Kafa şutu | Bitiricilik | Kafa Vuruşu |
+| Kafa pası, kafayla uzaklaştırma | Pas | Kafa Vuruşu |
+
+İleride form, zihinsel durum ve yorgunluk bütün yeteneklerin üstüne ayrı bir çarpan olarak eklenecek.
+
+### Teknik olarak eklenmeyenler
+
+- **Markaj:** Bir yetenek değil, bir görevdir. Görevi iyi yapma yeteneği zihinsel **Pozisyon Alma**'dır. Markaj ileride taktik talimatı olarak gelecek (adam adama / bölgesel, belirli bir oyuncuya özel markaj).
+- **Genel Teknik:** İşlevi Dripling ve İlk Dokunuş'ta.
+- **Uzun Taç:** Çok niş; gerekirse Duran Top'a katılır.
+- **Zayıf Ayak:** Teknik değil, oyuncu özelliği; ileride ele alınabilir.
 
 ## Zihinsel (11)
 
@@ -33,7 +57,7 @@ FM'e yakın, 1-20 ölçekli bir set. Karakteristik (kişilik ve oyuncu alışkan
 | Vizyon | Görebildiği en uzak pas; ara pas ve savunma arkası seçenekleri | Direkt, ara pas | – |
 | Önsezi | Pasa ve dönen topa tepki süresi; ara pası okuma | Pres, savunma | – |
 | Soğukkanlılık | Baskı altında pas ve şut cezasının, tünel görüşünün azalması | Prese karşı, bitiricilik | – |
-| Pozisyon Alma | Savunma konumundaki hata; ofsayt çizgisini koruma | Yüksek hat, derin blok | – |
+| Pozisyon Alma | Doğru yerde durma; markaj görevini yapma (adamını kaçırmama, koşucuyu takip); ofsayt çizgisini koruma | Yüksek hat, derin blok, adam adama | – |
 | Topsuz Alan | Boş alan bulma; koşu zamanlaması (ofsayta düşmeme) | Ver-git, savunma arkası | – |
 | Çalışkanlık | Pres ve geri dönüş koşusundaki sprint isteği | Yoğun pres | Daha çok yorulur |
 | Konsantrasyon | Maç ilerledikçe ve yorgunlukta artan hata | Uzun maçlar, yoğun takvim | – |
@@ -81,13 +105,13 @@ FM'e yakın, 1-20 ölçekli bir set. Karakteristik (kişilik ve oyuncu alışkan
 | Yoğun pres | Dayanıklılık, Çalışkanlık, Hızlanma, Önsezi, Top Kapma | Erken yorulma, geçilen presçiler, yoğun takvimde çöküş |
 | Kısa pas | Pas, İlk Dokunuş, Soğukkanlılık, Vizyon | Kendi yarı sahada top kaybı |
 | Direkt / uzun top | Forvetin Hızı, Güç, Zıplama ve Kafası; pasörün Vizyonu | Havada kaybedilen toplar |
-| Kanat oyunu | Orta, Top Sürme, Hız; ceza sahasında Kafa ve Zıplama | Boşa giden ortalar |
-| Derin blok + kontra | Markaj, Pozisyon Alma, Güç; forvetin Hızı | Sürekli baskı altında kalma |
+| Kanat oyunu | Uzun Pas / Orta, Dripling, Hız; ceza sahasında Kafa Vuruşu ve Zıplama | Boşa giden ortalar |
+| Derin blok + kontra | Pozisyon Alma, Güç, Top Kapma; forvetin Hızı | Sürekli baskı altında kalma |
 | Hızlı tempo | Karar Alma, Pas, Dayanıklılık | Aceleci hatalar |
 
 ## Uygulama sırası
 
-1. **Motorda mekaniği zaten olanlar:** Pas, İlk Dokunuş, Top Sürme, Bitiricilik, Top Kapma, Hız, Hızlanma, Dayanıklılık, Karar Alma, Vizyon, Soğukkanlılık, Agresiflik, kaleci Refleks ve Kaleden Çıkma. Bunlar mevcut mekaniğe bağlanır.
-2. **Küçük yeni mekanik isteyenler:** Uzaktan Şut, Kafa Vuruşu, Zıplama, Güç, Markaj, Önsezi, Topsuz Alan, Çalışkanlık, Konsantrasyon, Orta ve diğer kaleci özellikleri.
-3. **Yeni sistem isteyenler:** Doğal Kondisyon (maçtan maça yorgunluk), Duran Top, gizli özellikler, mevkiye göre bütçe (genel güç hesabı).
+1. **Motorda mekaniği zaten olanlar:** Pas, İlk Dokunuş, Dripling, Bitiricilik, Top Kapma, Hız, Hızlanma, Dayanıklılık, Karar Alma, Vizyon, Soğukkanlılık, Agresiflik, kaleci Refleks ve Kaleden Çıkma. Bunlar mevcut mekaniğe bağlanır.
+2. **Küçük yeni mekanik isteyenler:** Uzaktan Şut, Uzun Pas / Orta, Kafa Vuruşu (birleşik yetenek), Zıplama, Güç, Pozisyon Alma, Önsezi, Topsuz Alan, Çalışkanlık, Konsantrasyon ve diğer kaleci özellikleri.
+3. **Yeni sistem isteyenler:** Doğal Kondisyon (maçtan maça yorgunluk), Duran Top (frikik, korner, penaltı mekaniği), kartlar, gizli özellikler, mevkiye göre bütçe (genel güç hesabı).
 4. Her adımdan sonra özellik önem testi ve `saglik.js`.
