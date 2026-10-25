@@ -1,14 +1,42 @@
-# Kenar Çizgisi — Oyuncu Özellikleri (öneri)
+# Kenar Çizgisi — Oyuncu Özellikleri
 
-FM'e yakın, 1-20 ölçekli bir set. Karakteristik (kişilik ve oyuncu alışkanlıkları) bu belgenin dışında; ayrıca ele alınacak.
+Oyuncu özellikleri 1-10 ölçeklidir; arkada gizli 1-100 değerler vardır (aşağıdaki "Ölçek ve hesaplama"). Karakteristik (kişilik ve oyuncu alışkanlıkları) bu belgenin dışında; ayrıca ele alınacak.
+
+## Ölçek ve hesaplama — kararlaştırıldı
+
+**Motor 1-10 değere bakar. Gizli 1-100 değer o 1-10 değeri yaratan şeydir.**
+
+```
+Gizli değer (1-100)
+   Antrenman ve gelişim değiştirir (kalıcı).
+        ↓
+Maç anı etkileri gizli değere uygulanır (çarpan olarak, örn. %5 düşüş)
+   Sadece belirlenen şeyler etkiler: yorgunluk, konsantrasyon, form, moral, karakteristikler.
+   Bir şeyin gizli değeri etkilemediği söylenirse etkilemez.
+        ↓
+Etkin gizli değer → 1-10 bareme çevrilir
+   1-10 → 1 · 11-20 → 2 · 21-30 → 3 · … · 81-90 → 9 · 91-100 → 10
+        ↓
+Motor sadece 1-10 değeri görür ve ona göre hesaplar.
+```
+
+**Kırılganlık:** Aynı baremdeki iki oyuncu sahada aynı oynar, ama barem sınırına yakın olan kırılgandır. Örnek, %5 yorgunlukla: 99'luk pasör 94'e iner, hâlâ 10'luk pas atar; 91'lik pasör 86.5'e iner, 9'luk pas atar. İkisi de kadroda "10" görünür. Menajer için "hangi oyuncum yorgunluğa ve olaylara dayanıklı" sorusu böylece anlam kazanır.
+
+**Seviye tablosu:** Her özellik için ayar dosyasında "seviye 1 … seviye 10 → motordaki değer" tablosu olur. Adımlar eşit olmak zorunda değildir (örneğin elit seviyede farklar küçülebilir); test edilerek ayarlanır.
+
+**Her seviye hissedilmeli:** Taktik kademelerinde olduğu gibi, bir özelliğin her seviyesi bir öncekinden sahada ölçülebilir şekilde farklı olmalıdır ("Pas 7'den 8'e çıkınca pas isabeti artıyor mu?"). Özellik önem testi bunu kontrol eder.
+
+**Gösterim:** Oyuncu 1-10 değeri görür. Gizli değer gösterilmez. Gözlemcilik ileride aralık olarak gösterilebilir ("Pas 6-8").
+
+**Birleşik yetenekler (öneri, onay bekliyor):** Birleşim gizli değerlerde yapılır, sonuç en sonda bareme çevrilir. Örnek: Uzaktan Şut 95, Duran Top 30 → 95 × (0.85 + 0.15 × 30/100) = 85 → frikik şutu **9**. Böylece kural her zaman aynı kalır: önce gizli değerde hesapla, en sonda bareme çevir.
 
 ## Kurallar
 
 1. **Her özellik motorda somut bir mekaniğe bağlıdır.** Hiçbir mekaniğe bağlı olmayan özellik süstür ve eklenmez. Her özellik için "bunu artırınca sahada ne değişir" sorusunun ölçülebilir bir cevabı olmalı.
 2. **Mutlak iyi özellik yoktur (TASARIM.md).** Hız gibi saf avantajlar oyuncunun bütçesinden yer kaplar. Bazı özellikler de doğal bir bedel taşır ya da bir başka özelliğe ihtiyaç duyar: Topsuz Alan'ı iyi bir forvet, Vizyon'u zayıf bir pasörle değer kaybeder; Konsantrasyon'u düşük bir kadro prese ve maç sonlarına karşı savunmasızdır.
 3. **Taktikle etkileşim:** Her taktik ayarı belirli özelliklere yaslanır. Kadroya uymayan taktik çalışmaz. En iyi taktik kadroya göre değişir.
-4. **Mevkiye göre bütçe:** Oyuncunun genel gücü, özelliklerin mevkiye göre ağırlıklı toplamıdır (FM'deki CA gibi). Bir oyuncu her şeyde 20 olamaz.
-5. **Ölçülerek dengelenir:** `saglik.js`'in benzeri bir "özellik önem testi" her özelliği 8'den 16'ya çıkarıp etkisini ölçer. Birkaç özellik oyunu domine ediyorsa (FM'de Hız ve Hızlanma gibi) ağırlıklar düzeltilir.
+4. **Mevkiye göre bütçe:** Oyuncunun genel gücü, özelliklerin mevkiye göre ağırlıklı toplamıdır (FM'deki CA gibi). Bir oyuncu her şeyde 10 olamaz.
+5. **Ölçülerek dengelenir:** `saglik.js`'in benzeri bir "özellik önem testi" her özelliğin her seviyesini (1'den 10'a) tek tek ölçer. Birkaç özellik oyunu domine ediyorsa (FM'de Hız ve Hızlanma gibi) ağırlıklar düzeltilir.
 
 ## Teknik (9) — kararlaştırıldı
 
@@ -28,9 +56,9 @@ FM'e yakın, 1-20 ölçekli bir set. Karakteristik (kişilik ve oyuncu alışkan
 
 Bazı durumlarda iki yetenek birlikte çalışır: ana yetenek belirleyicidir, yardımcı yetenek onu bir miktar artırır ya da düşürür.
 
-**etkin yetenek = ana yetenek × (taban + (1 − taban) × yardımcı / 20)**, taban başlangıçta 0.85 (ayar dosyasında, test edilerek ayarlanır).
+**etkin yetenek = ana yetenek × (taban + (1 − taban) × yardımcı / 100)**, gizli değerler üzerinden; taban başlangıçta 0.85 (ayar dosyasında, test edilerek ayarlanır). Sonuç en sonda 1-10 bareme çevrilir.
 
-Örnek: Uzaktan Şut 20, Duran Top 5 olan oyuncunun frikik şutu 17.8 olur. Uzaktan şutu çok iyi olsa da duran topu iyi değilse başarısı bir derece düşer.
+Örnek: Uzaktan Şut 95, Duran Top 30 olan oyuncunun frikik şutu 85 olur, yani 10 yerine 9'luk frikik. Uzaktan şutu çok iyi olsa da duran topu iyi değilse başarısı bir derece düşer.
 
 | Durum | Ana yetenek | Yardımcı yetenek |
 |---|---|---|
@@ -40,7 +68,7 @@ Bazı durumlarda iki yetenek birlikte çalışır: ana yetenek belirleyicidir, y
 | Kafa şutu | Bitiricilik | Kafa Vuruşu |
 | Kafa pası, kafayla uzaklaştırma | Pas | Kafa Vuruşu |
 
-İleride form, zihinsel durum ve yorgunluk bütün yeteneklerin üstüne ayrı bir çarpan olarak eklenecek.
+Form, konsantrasyon, moral ve yorgunluk gizli değere çarpan olarak uygulanır (yukarıdaki "Ölçek ve hesaplama").
 
 ### Teknik olarak eklenmeyenler
 
