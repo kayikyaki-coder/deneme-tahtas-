@@ -2,6 +2,8 @@
 
 Haxball görünümünde, Football Manager ruhunda bir taktik oyunu prototipi. Topa sen dokunmuyorsun: taktiği kurup maçı izliyorsun, gerektiğinde kenardan müdahale ediyorsun. Hedef, taktiğin gerçekten önemli olduğu ama hiçbir taktiğin her şeyi yenmediği bir oyun.
 
+**Temel tasarım ilkesi:** Tek bir mutlak iyi taktik olmamalı. Ayrıntılar ve ileride yapılacaklar için [TASARIM.md](TASARIM.md).
+
 ## Çalıştırma
 
 `index.html` dosyasını tarayıcıda aç. Kurulum gerekmez; `engine.js` aynı klasörde olmalı.
