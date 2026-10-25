@@ -5,7 +5,7 @@ FM'e yakın, 1-20 ölçekli bir set. Karakteristik (kişilik ve oyuncu alışkan
 ## Kurallar
 
 1. **Her özellik motorda somut bir mekaniğe bağlıdır.** Hiçbir mekaniğe bağlı olmayan özellik süstür ve eklenmez. Her özellik için "bunu artırınca sahada ne değişir" sorusunun ölçülebilir bir cevabı olmalı.
-2. **Mutlak iyi özellik yoktur (TASARIM.md).** Hız gibi saf avantajlar oyuncunun bütçesinden yer kaplar. Bazı özellikler de doğal bir bedel taşır: çalışkan oyuncu daha çok yorulur, agresif oyuncu daha çok faul yapar, yaratıcı oyuncu daha çok top kaybeder.
+2. **Mutlak iyi özellik yoktur (TASARIM.md).** Hız gibi saf avantajlar oyuncunun bütçesinden yer kaplar. Bazı özellikler de doğal bir bedel taşır ya da bir başka özelliğe ihtiyaç duyar: Topsuz Alan'ı iyi bir forvet, Vizyon'u zayıf bir pasörle değer kaybeder; Konsantrasyon'u düşük bir kadro prese ve maç sonlarına karşı savunmasızdır.
 3. **Taktikle etkileşim:** Her taktik ayarı belirli özelliklere yaslanır. Kadroya uymayan taktik çalışmaz. En iyi taktik kadroya göre değişir.
 4. **Mevkiye göre bütçe:** Oyuncunun genel gücü, özelliklerin mevkiye göre ağırlıklı toplamıdır (FM'deki CA gibi). Bir oyuncu her şeyde 20 olamaz.
 5. **Ölçülerek dengelenir:** `saglik.js`'in benzeri bir "özellik önem testi" her özelliği 8'den 16'ya çıkarıp etkisini ölçer. Birkaç özellik oyunu domine ediyorsa (FM'de Hız ve Hızlanma gibi) ağırlıklar düzeltilir.
@@ -49,21 +49,38 @@ Bazı durumlarda iki yetenek birlikte çalışır: ana yetenek belirleyicidir, y
 - **Uzun Taç:** Çok niş; gerekirse Duran Top'a katılır.
 - **Zayıf Ayak:** Teknik değil, oyuncu özelliği; ileride ele alınabilir.
 
-## Zihinsel (11)
+## Zihinsel (5) — kararlaştırıldı
 
-| Özellik | Motordaki mekanik | Önem taşıdığı taktik | Bedeli |
-|---|---|---|---|
-| Karar Alma | Karar gürültüsü: doğru seçeneği seçme | Her şey | – |
-| Vizyon | Görebildiği en uzak pas; ara pas ve savunma arkası seçenekleri | Direkt, ara pas | – |
-| Önsezi | Pasa ve dönen topa tepki süresi; ara pası okuma | Pres, savunma | – |
-| Soğukkanlılık | Baskı altında pas ve şut cezasının, tünel görüşünün azalması | Prese karşı, bitiricilik | – |
-| Pozisyon Alma | Doğru yerde durma; markaj görevini yapma (adamını kaçırmama, koşucuyu takip); ofsayt çizgisini koruma | Yüksek hat, derin blok, adam adama | – |
-| Topsuz Alan | Boş alan bulma; koşu zamanlaması (ofsayta düşmeme) | Ver-git, savunma arkası | – |
-| Çalışkanlık | Pres ve geri dönüş koşusundaki sprint isteği | Yoğun pres | Daha çok yorulur |
-| Konsantrasyon | Maç ilerledikçe ve yorgunlukta artan hata | Uzun maçlar, yoğun takvim | – |
-| Agresiflik | Müdahale denemesi sıklığı | Pres | Daha çok faul |
-| Takım Oyunu | Taktik şekle ve pres tetiklerine uyumun hassasiyeti | Karmaşık taktikler | – |
-| Yaratıcılık | Riskli ama değerli seçenekleri tercih etme | Kapalı savunmayı açmak | Daha çok top kaybı |
+Zihinsel özellikler az ve birbirini tamamlayan çiftler halinde:
+- **Topsuz Alan ↔ Pozisyon Alma:** hücumda doğru yer ↔ savunmada doğru yer.
+- **Topsuz Alan ↔ Vizyon:** biri pas seçeneğini yaratır, diğeri o seçeneği görür. Forvetin koşusu ne kadar iyi olursa olsun, pasörün vizyonu yoksa koşu görülmez.
+- **Vizyon ↔ Karar Alma:** seçenekleri görmek ↔ aralarından doğrusunu seçmek.
+- **Konsantrasyon:** hepsinin sahaya ne kadar yansıyacağını belirler.
+
+| Özellik | Ne yapar | Motordaki mekanik |
+|---|---|---|
+| Topsuz Alan | Hücumda topla nerede buluşması gerektiğini bilmek ve ona göre hareket etmek. İyi olan oyuncu daha çok pas alma seçeneği yaratır. (FM'deki Önsezi'nin hücum tarafı da buradadır.) | Boş alan arama kalitesi; koşu zamanlaması (ofsayta düşmeme) |
+| Pozisyon Alma | Savunmada doğru yerde durmak; markaj görevini yapmak (adamını ve koşucuyu kaçırmamak); pası okuyup araya girmek; ofsayt çizgisini korumak. (FM'deki Önsezi'nin savunma tarafı da buradadır.) | Savunma konumundaki hata; markaj sıkılığı; pası kesmede tepki süresi |
+| Vizyon | Pas seçeneklerini, özellikle uzaktakileri görmek | Pasörün görebildiği en uzak seçenek; ara pas ve savunma arkası seçeneklerinin görünmesi |
+| Karar Alma | Gördüğü seçenekler arasından doğrusunu seçmek | Karar gürültüsü. Hızlı tempo, kararı zayıf oyunculara daha çok hata yaptırır. |
+| Konsantrasyon | Düşükse bütün teknik ve zihinsel yeteneklerin sahaya yansımasını engeller. Yüksekse düşüşler az etkiler. (FM'deki Soğukkanlılık'ın yerini alır.) | Aşağıdaki anlık konsantrasyon seviyesi |
+
+### Konsantrasyon seviyesi
+
+Her oyuncunun maç içinde yükselip alçalan bir **konsantrasyon seviyesi** olur. Bütün yeteneklerin sahadaki etkisi bu seviyeyle çarpılır.
+
+- **Zamanla düşer:** Maç ilerledikçe ve yorgunlukla birlikte.
+- **Olaylarla anlık düşer:** Takımı gol yediğinde; takımından biri kart (özellikle kırmızı) gördüğünde.
+- **Baskıyla düşer:** Sürekli preslenmek konsantrasyonu biraz düşürür. Böylece pres, konsantrasyonu düşük takımlara karşı daha etkili olur.
+- **Zamanla toparlanır.**
+- **Konsantrasyon yeteneği** düşüşün hızını ve olaylardan ne kadar etkilendiğini belirler: yüksek yetenekli oyuncu az etkilenir, düşük yetenekli çok.
+- **Dikkat:** Bütün yetenekleri etkilediği için kolayca "mutlak iyi özellik" haline gelebilir. Etkisi özellik önem testiyle ölçülüp sınırlanacak.
+
+### Zihinsel olarak eklenmeyenler
+
+- **Karakteristik grubunda konuşulacak:** Agresiflik, Cesaret, Yaratıcılık, Çalışkanlık, Liderlik. Liderlik için düşünülen mekanik: kaptanın ya da lider oyuncunun yakınındaki takım arkadaşlarının konsantrasyon düşüşünü azaltması.
+- **Çıkarıldı:** Kararlılık, Takım Oyunu.
+- **Birleştirildi:** Önsezi (hücum yarısı Topsuz Alan'a, savunma yarısı Pozisyon Alma'ya), Soğukkanlılık (Konsantrasyon'a).
 
 ## Fiziksel (7)
 
@@ -102,8 +119,8 @@ Bazı durumlarda iki yetenek birlikte çalışır: ana yetenek belirleyicidir, y
 | Taktik ayarı | Yaslandığı özellikler | Kadroya uymazsa |
 |---|---|---|
 | Yüksek savunma hattı | Stoperlerin Hızı ve Hızlanması, Pozisyon Alma, kalecinin Kaleden Çıkması | Arkaya atılan her top tehlike |
-| Yoğun pres | Dayanıklılık, Çalışkanlık, Hızlanma, Önsezi, Top Kapma | Erken yorulma, geçilen presçiler, yoğun takvimde çöküş |
-| Kısa pas | Pas, İlk Dokunuş, Soğukkanlılık, Vizyon | Kendi yarı sahada top kaybı |
+| Yoğun pres | Dayanıklılık, Hızlanma, Pozisyon Alma, Top Kapma; rakibin düşük Konsantrasyon ve İlk Dokunuşu presi güçlendirir | Erken yorulma, geçilen presçiler, yoğun takvimde çöküş |
+| Kısa pas | Pas, İlk Dokunuş, Vizyon, Topsuz Alan, Konsantrasyon | Kendi yarı sahada top kaybı |
 | Direkt / uzun top | Forvetin Hızı, Güç, Zıplama ve Kafası; pasörün Vizyonu | Havada kaybedilen toplar |
 | Kanat oyunu | Uzun Pas / Orta, Dripling, Hız; ceza sahasında Kafa Vuruşu ve Zıplama | Boşa giden ortalar |
 | Derin blok + kontra | Pozisyon Alma, Güç, Top Kapma; forvetin Hızı | Sürekli baskı altında kalma |
@@ -111,7 +128,7 @@ Bazı durumlarda iki yetenek birlikte çalışır: ana yetenek belirleyicidir, y
 
 ## Uygulama sırası
 
-1. **Motorda mekaniği zaten olanlar:** Pas, İlk Dokunuş, Dripling, Bitiricilik, Top Kapma, Hız, Hızlanma, Dayanıklılık, Karar Alma, Vizyon, Soğukkanlılık, Agresiflik, kaleci Refleks ve Kaleden Çıkma. Bunlar mevcut mekaniğe bağlanır.
-2. **Küçük yeni mekanik isteyenler:** Uzaktan Şut, Uzun Pas / Orta, Kafa Vuruşu (birleşik yetenek), Zıplama, Güç, Pozisyon Alma, Önsezi, Topsuz Alan, Çalışkanlık, Konsantrasyon ve diğer kaleci özellikleri.
-3. **Yeni sistem isteyenler:** Doğal Kondisyon (maçtan maça yorgunluk), Duran Top (frikik, korner, penaltı mekaniği), kartlar, gizli özellikler, mevkiye göre bütçe (genel güç hesabı).
+1. **Motorda mekaniği zaten olanlar:** Pas, İlk Dokunuş, Dripling, Bitiricilik, Top Kapma, Hız, Hızlanma, Dayanıklılık, Karar Alma, Vizyon, Topsuz Alan, kaleci Refleks ve Kaleden Çıkma. Bunlar mevcut mekaniğe bağlanır.
+2. **Küçük yeni mekanik isteyenler:** Uzaktan Şut, Uzun Pas / Orta, Kafa Vuruşu (birleşik yetenek), Zıplama, Güç, Pozisyon Alma ve diğer kaleci özellikleri.
+3. **Yeni sistem isteyenler:** Konsantrasyon seviyesi, Doğal Kondisyon (maçtan maça yorgunluk), Duran Top (frikik, korner, penaltı mekaniği), kartlar, gizli özellikler, mevkiye göre bütçe (genel güç hesabı).
 4. Her adımdan sonra özellik önem testi ve `saglik.js`.
