@@ -28,7 +28,7 @@ Motor sadece 1-10 değeri görür ve ona göre hesaplar.
 
 **Gösterim:** Oyuncu 1-10 değeri görür. Gizli değer gösterilmez. Gözlemcilik ileride aralık olarak gösterilebilir ("Pas 6-8").
 
-**Birleşik yetenekler (öneri, onay bekliyor):** Birleşim gizli değerlerde yapılır, sonuç en sonda bareme çevrilir. Örnek: Uzaktan Şut 95, Duran Top 30 → 95 × (0.85 + 0.15 × 30/100) = 85 → frikik şutu **9**. Böylece kural her zaman aynı kalır: önce gizli değerde hesapla, en sonda bareme çevir.
+**Oyun içinde her şey 1-10'dur.** Gizli 1-100 değeri sadece belirlenen etkiler değiştirir (yorgunluk, konsantrasyon, form, moral, karakteristikler, antrenman). Diğer bütün hesaplar, birleşik yetenekler dahil, 1-10 seviyelerle yapılır. Motor her özellik için 10 farklı seviye bilir; 45 ile 46 arasında fark uydurmak zorunda kalmaz.
 
 ## Kurallar
 
@@ -54,11 +54,20 @@ Motor sadece 1-10 değeri görür ve ona göre hesaplar.
 
 ### Birleşik yetenekler
 
-Bazı durumlarda iki yetenek birlikte çalışır: ana yetenek belirleyicidir, yardımcı yetenek onu bir miktar artırır ya da düşürür.
+Bazı durumlarda iki yetenek birlikte çalışır: ana yetenek belirleyicidir, yardımcı yetenek onu bir miktar artırır ya da düşürür. Hesap 1-10 seviyelerle yapılır ve sonuç da 1-10 seviyelerden biridir.
 
-**etkin yetenek = ana yetenek × (taban + (1 − taban) × yardımcı / 100)**, gizli değerler üzerinden; taban başlangıçta 0.85 (ayar dosyasında, test edilerek ayarlanır). Sonuç en sonda 1-10 bareme çevrilir.
+Sonuç bir **10×10 tablodan** okunur (ana seviye × yardımcı seviye → sonuç seviyesi). Tablonun başlangıç değerleri şu formülle doldurulur, sonra hücre hücre ayarlanabilir (ayar dosyasında):
 
-Örnek: Uzaktan Şut 95, Duran Top 30 olan oyuncunun frikik şutu 85 olur, yani 10 yerine 9'luk frikik. Uzaktan şutu çok iyi olsa da duran topu iyi değilse başarısı bir derece düşer.
+**sonuç = yuvarla(ana × (0.85 + 0.15 × yardımcı / 10))**
+
+| Ana \ Yardımcı | 1 | 3 | 5 | 7 | 10 |
+|---|---|---|---|---|---|
+| **10** | 9 | 9 | 9 | 10 | 10 |
+| **8** | 7 | 7 | 7 | 8 | 8 |
+| **5** | 4 | 4 | 5 | 5 | 5 |
+| **3** | 3 | 3 | 3 | 3 | 3 |
+
+Örnek: Uzaktan Şut 10 ama Duran Top zayıfsa (1-5) frikik şutu 9 olur; uzaktan şutu çok iyi olsa da duran topu iyi değilse başarısı bir derece düşer. Duran Top iyiyse (7 ve üstü) 10 kalır. Yardımcının etkisini artırmak için 0.85 düşürülür ya da tablo elle düzenlenir.
 
 | Durum | Ana yetenek | Yardımcı yetenek |
 |---|---|---|
