@@ -82,17 +82,39 @@ Her oyuncunun maç içinde yükselip alçalan bir **konsantrasyon seviyesi** olu
 - **Çıkarıldı:** Kararlılık, Takım Oyunu.
 - **Birleştirildi:** Önsezi (hücum yarısı Topsuz Alan'a, savunma yarısı Pozisyon Alma'ya), Soğukkanlılık (Konsantrasyon'a).
 
-## Fiziksel (7)
+## Fiziksel (6) — kararlaştırıldı
 
-| Özellik | Motordaki mekanik | Önem taşıdığı taktik |
+| Özellik | Ne yapar | Motordaki mekanik |
 |---|---|---|
-| Hız | Azami koşu hızı | Kontra, savunma arkası; yüksek hatta stoper |
-| Hızlanma | İvme; ilk adımlar ve yön değişimi sonrası | Pres, kısa mesafe yarışları |
-| Dayanıklılık | Maç içinde kondisyon kaybı hızı | Yoğun pres, yüksek tempo |
-| Doğal Kondisyon | Maçlar arası toparlanma; yaşla düşüş (TASARIM.md, A planı) | Yoğun takvim |
-| Güç | Omuz omuza mücadele, topu koruma, çarpışmada itilme | Hedef forvet, derin blok |
-| Çeviklik | Ani yön değiştirme; top sürerken rakipten sıyrılma | Dar alanda oyun |
-| Zıplama | Hava düellosunda yükselme | Orta, uzun top, duran top |
+| Hız | Uzun mesafede azami hız | Azami koşu hızı. Topla koşarken Dripling ile birlikte çalışır. |
+| Çeviklik | İlk adımlar, kısa mesafede hız alma ve koşarken hızlıca yön değiştirme | İvme: hızını ve yönünü ne kadar çabuk değiştirebildiği |
+| Dayanıklılık | Maç içinde ne kadar geç ve zor yorulduğu | Maç içi kondisyon kaybı hızı |
+| Zindelik | Maçlar arasında eski fiziksel kondisyonuna ne kadar hızlı döndüğü | Maçtan maça yorgunluk (TASARIM.md, A planı) |
+| Güç | Omuz omuza mücadele, topu koruma, temasta ayakta kalma | Çarpışmada kimin itildiği; ikili mücadele; hava düellosunda pay |
+| Zıplama | Havada topa yükselme | Hava düellosunda kimin topa ulaştığı (Boy ile birlikte). Ulaştıktan sonrası Kafa Vuruşu'dur. |
+
+### Boy (oyuncu bilgisi)
+
+Boy bir özellik değil, oyuncunun sabit bir bilgisidir (yaş ve ayak tercihi gibi). Ama özellikle kafa toplarında çok önemlidir: hava düellosunda Zıplama ile birlikte çalışır. Uzun oyuncu az zıplasa da topa ulaşabilir; kısa oyuncu iyi zıplayarak bunu kısmen telafi eder.
+
+### Çiftler
+
+- **Hız ↔ Çeviklik:** Farklı oyuncu tipleri. Hız savunma arkasına atılan topa ve kontraya, Çeviklik prese ve dar alanda oyuna yaslanır.
+- **Dayanıklılık ↔ Zindelik:** Yoğun takvim ilkesinin iki yarısı. Dayanıklılığı yüksek ama Zindeliği düşük oyuncu bir maçta 90 dakika pres yapar ama üç gün sonra hazır değildir; tam tersi her maç oynar ama maç sonlarında düşer. Rotasyon kararını bu ikisi belirler.
+- **Güç + Zıplama + Boy:** Hava topunu birlikte kazanırlar. Yerde topu korumak sadece Güç'tür.
+
+### Hız'ın baskın olmaması için
+
+FM'de Hız ve Hızlanma neredeyse her şeyi belirler. Bunu baştan önlemek için:
+- Hızlı ama Dripling'i zayıf oyuncu topla o kadar hızlı koşamaz.
+- Doğru yerde duran yavaş stoper (Pozisyon Alma), yanlış yerde duran hızlı stoperden iyi olmalıdır.
+- Fiziksel özellikler yaşla teknik ve zihinsel olanlardan önce düşer.
+- Özellik önem testiyle Hız'ın etkisi ölçülür, gerekirse sınırlanır.
+
+### Fiziksel olarak eklenmeyenler
+
+- **Denge:** Güç'e katıldı.
+- **Hızlanma ve Çeviklik (FM'deki ayrı hâlleri):** Tek özellikte, Çeviklik adıyla birleşti.
 
 ## Kaleci (7)
 
@@ -118,17 +140,17 @@ Her oyuncunun maç içinde yükselip alçalan bir **konsantrasyon seviyesi** olu
 
 | Taktik ayarı | Yaslandığı özellikler | Kadroya uymazsa |
 |---|---|---|
-| Yüksek savunma hattı | Stoperlerin Hızı ve Hızlanması, Pozisyon Alma, kalecinin Kaleden Çıkması | Arkaya atılan her top tehlike |
-| Yoğun pres | Dayanıklılık, Hızlanma, Pozisyon Alma, Top Kapma; rakibin düşük Konsantrasyon ve İlk Dokunuşu presi güçlendirir | Erken yorulma, geçilen presçiler, yoğun takvimde çöküş |
+| Yüksek savunma hattı | Stoperlerin Hızı ve Çevikliği, Pozisyon Alma, kalecinin Kaleden Çıkması | Arkaya atılan her top tehlike |
+| Yoğun pres | Dayanıklılık, Zindelik (yoğun takvimde), Çeviklik, Pozisyon Alma, Top Kapma; rakibin düşük Konsantrasyon ve İlk Dokunuşu presi güçlendirir | Erken yorulma, geçilen presçiler, yoğun takvimde çöküş |
 | Kısa pas | Pas, İlk Dokunuş, Vizyon, Topsuz Alan, Konsantrasyon | Kendi yarı sahada top kaybı |
-| Direkt / uzun top | Forvetin Hızı, Güç, Zıplama ve Kafası; pasörün Vizyonu | Havada kaybedilen toplar |
+| Direkt / uzun top | Forvetin Hızı, Güç, Boy, Zıplama ve Kafa Vuruşu; pasörün Vizyonu | Havada kaybedilen toplar |
 | Kanat oyunu | Uzun Pas / Orta, Dripling, Hız; ceza sahasında Kafa Vuruşu ve Zıplama | Boşa giden ortalar |
 | Derin blok + kontra | Pozisyon Alma, Güç, Top Kapma; forvetin Hızı | Sürekli baskı altında kalma |
 | Hızlı tempo | Karar Alma, Pas, Dayanıklılık | Aceleci hatalar |
 
 ## Uygulama sırası
 
-1. **Motorda mekaniği zaten olanlar:** Pas, İlk Dokunuş, Dripling, Bitiricilik, Top Kapma, Hız, Hızlanma, Dayanıklılık, Karar Alma, Vizyon, Topsuz Alan, kaleci Refleks ve Kaleden Çıkma. Bunlar mevcut mekaniğe bağlanır.
+1. **Motorda mekaniği zaten olanlar:** Pas, İlk Dokunuş, Dripling, Bitiricilik, Top Kapma, Hız, Çeviklik, Dayanıklılık, Karar Alma, Vizyon, Topsuz Alan, kaleci Refleks ve Kaleden Çıkma. Bunlar mevcut mekaniğe bağlanır.
 2. **Küçük yeni mekanik isteyenler:** Uzaktan Şut, Uzun Pas / Orta, Kafa Vuruşu (birleşik yetenek), Zıplama, Güç, Pozisyon Alma ve diğer kaleci özellikleri.
-3. **Yeni sistem isteyenler:** Konsantrasyon seviyesi, Doğal Kondisyon (maçtan maça yorgunluk), Duran Top (frikik, korner, penaltı mekaniği), kartlar, gizli özellikler, mevkiye göre bütçe (genel güç hesabı).
+3. **Yeni sistem isteyenler:** Konsantrasyon seviyesi, Zindelik (maçtan maça yorgunluk), Boy, Duran Top (frikik, korner, penaltı mekaniği), kartlar, gizli özellikler, mevkiye göre bütçe (genel güç hesabı).
 4. Her adımdan sonra özellik önem testi ve `saglik.js`.

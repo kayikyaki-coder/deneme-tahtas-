@@ -20,7 +20,7 @@ Her yeni özellik ve her motor değişikliği bu ilkeye göre değerlendirilir. 
 
 **A. Maçtan maça yorgunluk**
 - Her oyuncunun maçlar arasında taşınan bir fiziksel durumu olacak, maça bu durumla başlayacak.
-- Maçtaki yük (koşu, sprint, pres) bu durumu düşürecek. Maçlar arasındaki her gün dayanıklılığa göre toparlanacak.
+- Maçtaki yük (koşu, sprint, pres) bu durumu düşürecek. Maçlar arasındaki her gün oyuncunun Zindelik özelliğine göre toparlanacak.
 - Durum düştükçe sakatlanma riski artacak.
 - Fikstür modu: yoğun ve seyrek maç takvimi, ilk 11 seçimi, rotasyon.
 
